@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ingest-api-deployment
+  namespace: nyro-develop
+  labels:
+    app: ingest-api
+spec:
+  replicas: 2 # Start with 2 replicas for availability
+  selector:
+    matchLabels:
+      app: ingest-api
+  template:
+    metadata:
+      labels:
+        app: ingest-api
+    spec:
+      containers:
+        - name: ingest-api
+          image: localhost:32000/ingest-service:latest # Replace with your image name
+          imagePullPolicy: Always # Or IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+          # Command to run the FastAPI app with Gunicorn
+          command: ["gunicorn"]
+          args: ["-k", "uvicorn.workers.UvicornWorker", "-w", "4", "-b", "0.0.0.0:8000", "app.main:app"] # Adjust workers (-w) as needed
+          envFrom:
+            - configMapRef:
+                name: ingest-service-config
+            - secretRef:
+                name: ingest-service-secrets
+          resources:
+            requests:
+              cpu: "200m" # Adjust based on observation
+              memory: "512Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1Gi"
+          readinessProbe:
+            httpGet:
+              path: / # Root path for health check
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+      # Add imagePullSecrets if using a private registry
+      # imagePullSecrets:
+      # - name: your-registry-secret

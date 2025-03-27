@@ -2,22 +2,22 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: ingest-service-config
-  namespace: ingest-system
+  namespace: nyro-develop
 data:
   # General
   INGEST_LOG_LEVEL: "INFO"
   # Celery (using K8s service names)
-  INGEST_CELERY_BROKER_URL: "redis://redis-service.ingest-system.svc.cluster.local:6379/0" # Full DNS name recommended
-  INGEST_CELERY_RESULT_BACKEND: "redis://redis-service.ingest-system.svc.cluster.local:6379/1"
+  INGEST_CELERY_BROKER_URL: "redis://redis-service.nyro-develop.svc.cluster.local:6379/0" # Full DNS name recommended
+  INGEST_CELERY_RESULT_BACKEND: "redis://redis-service.nyro-develop.svc.cluster.local:6379/1"
   # Databases (using K8s service names)
-  INGEST_POSTGRES_SERVER: "postgres-service.ingest-system.svc.cluster.local"
+  INGEST_POSTGRES_SERVER: "postgres-service.nyro-develop.svc.cluster.local"
   INGEST_POSTGRES_PORT: "5432"
   INGEST_POSTGRES_USER: "your_postgres_user" # Match your Postgres setup
   INGEST_POSTGRES_DB: "your_postgres_db"    # Match your Postgres setup
-  INGEST_MILVUS_URI: "http://milvus-service.ingest-system.svc.cluster.local:19530"
+  INGEST_MILVUS_URI: "http://milvus-service.nyro-develop.svc.cluster.local:19530"
   INGEST_MILVUS_COLLECTION_NAME: "document_chunks_haystack"
   # MinIO (using K8s service name)
-  INGEST_MINIO_ENDPOINT: "minio-service.ingest-system.svc.cluster.local:9000"
+  INGEST_MINIO_ENDPOINT: "minio-service.nyro-develop.svc.cluster.local:9000"
   INGEST_MINIO_BUCKET_NAME: "ingested-documents"
   INGEST_MINIO_USE_SECURE: "False" # Typically false inside cluster
   # Haystack/OpenAI

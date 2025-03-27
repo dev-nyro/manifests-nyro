@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ingest-worker-deployment
+  namespace: nyro-develop
+  labels:
+    app: ingest-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ingest-worker
+  template:
+    metadata:
+      labels:
+        app: ingest-worker
+    spec:
+      containers:
+        - name: ingest-worker
+          image: localhost:32000/ingest-service:latest
+          imagePullPolicy: Always # Or IfNotPresent
+          # Command to run the Celery worker
+          # Use gevent or eventlet for async tasks
+          command: ["celery"]
+          args: ["-A", "app.tasks.celery_app", "worker", "--loglevel=INFO", "-P", "gevent", "-c", "4"] # Adjust concurrency (-c)
+          envFrom:
+            - configMapRef:
+                name: ingest-service-config
+            - secretRef:
+                name: ingest-service-secrets
+          resources:
+            requests:
+              cpu: "500m" # Workers might need more CPU/Memory
+              memory: "1Gi"
+            limits:
+              cpu: "2000m"
+              memory: "2Gi"
+          # Liveness/Readiness probes for workers are trickier.
+          # Basic check: ensure process is running. More advanced: Celery flower or custom health check endpoint.
+          # livenessProbe:
+          #   exec:
+          #     command:
+          #     - celery
+          #     - -A
+          #     - app.tasks.celery_app
+          #     - status
+          #   initialDelaySeconds: 60
+          #   periodSeconds: 60
+      # Add imagePullSecrets if using a private registry
+      # imagePullSecrets:
+      # - name: your-registry-secret
