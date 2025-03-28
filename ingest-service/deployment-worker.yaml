@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: ingest-worker
-          image: localhost:32000/ingest-service:develop-5e72f9af93e78eadb7afe0be54fc746878664356
+          image: localhost:32000/ingest-service:develop-441a85f3c89b44dff6846cdc534dbb4e543473fa
           imagePullPolicy: Always # Or IfNotPresent
           # Command to run the Celery worker
           # Use gevent or eventlet for async tasks
