@@ -38,4 +38,4 @@ data:
   INGEST_SPLITTER_SPLIT_BY: "word"
 
   # Add other non-sensitive settings if needed
-  # INGEST_PROJECT_NAME: "Ingest Service Prod" # Example override
+  # INGEST_PROJECT_NAME: "Ingest Service Prod" # Example override 
