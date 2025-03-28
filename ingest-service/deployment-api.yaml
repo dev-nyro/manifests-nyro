@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: ingest-api
-          image: localhost:32000/ingest-service:develop-2424db7fa5163f895e7e6298071576f584f00809
+          image: localhost:32000/ingest-service:develop-b5cbe7d12654e5784588c28689b0b35e7c58e473
           imagePullPolicy: Always # Or IfNotPresent
           ports:
             - name: http
