@@ -1,0 +1,30 @@
+apiVersion: milvus.io/v1beta1
+kind: Milvus
+metadata:
+  name: milvus
+  namespace: nyro-develop
+spec:
+  components:
+    dataNode:
+      replicas: 1
+    indexNode:
+      replicas: 1
+    proxy:
+      serviceType: ClusterIP
+  config:
+    minio:
+      bucketName: milvus
+      rootPath: milvus-data
+      useSSL: false
+  dependencies:
+    etcd:
+      inCluster:
+        persistence:
+          size: 4Gi
+    pulsar:
+      inCluster: true
+    storage:
+      external: true
+      type: MinIO
+      endpoint: minio-service:9000
+      secretRef: minio-secrets
