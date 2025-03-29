@@ -6,7 +6,7 @@ metadata:
   labels:
     app: ingest-api
 spec:
-  replicas: 2 # Start with 2 replicas for availability
+  replicas: 1 # Start with 2 replicas for availability
   selector:
     matchLabels:
       app: ingest-api
