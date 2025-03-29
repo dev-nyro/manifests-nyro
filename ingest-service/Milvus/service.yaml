@@ -2,7 +2,6 @@ apiVersion: milvus.io/v1beta1
 kind: Milvus
 metadata:
   name: milvus
-  namespace: default
 spec:
   components:
     dataNode:
@@ -10,21 +9,37 @@ spec:
     indexNode:
       replicas: 1
     proxy:
+      replicas: 1
       serviceType: ClusterIP
-  config:
-    minio:
-      bucketName: milvus
-      rootPath: milvus-data
-      useSSL: false
+    queryNode:
+      replicas: 1
+    mixCoord:
+      replicas: 1
   dependencies:
     etcd:
       inCluster:
-        persistence:
-          size: 4Gi
+        values:
+          autoCompactionMode: revision
+          autoCompactionRetention: "1000"
+          persistence:
+            enabled: true
+            size: 4Gi
     pulsar:
-      inCluster: true
+      inCluster:
+        values:
+          broker:
+            replicaCount: 1
+          zookeeper:
+            replicaCount: 1
+          bookkeeper:
+            replicaCount: 1
     storage:
       external: true
-      type: MinIO
-      endpoint: minio-service:9000
-      secretRef: minio-secrets
+      type: S3
+      endpoint: minio-service.nyro-develop.svc.cluster.local:9000
+      secretRef: minio-secret
+  config:
+    minio:
+      bucketName: my-milvus-bucket
+      rootPath: milvus/data
+      useSSL: false
