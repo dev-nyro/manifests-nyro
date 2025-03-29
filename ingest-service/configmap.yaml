@@ -1,4 +1,4 @@
-# configmap.yaml (CORREGIDO)
+# configmap.yaml (CORREGIDO - Usando Session Pooler)
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -6,40 +6,35 @@ metadata:
   namespace: nyro-develop
 data:
   # General
-  INGEST_LOG_LEVEL: "INFO" # O "DEBUG" para más detalles
+  INGEST_LOG_LEVEL: "INFO" # O "DEBUG"
 
-  # Celery (using CORRECT K8s service names for ClusterIP service)
-  # *** CORREGIDO: Apuntar a redis-service-master ***
+  # Celery (Sin cambios aquí, sigue apuntando a Redis interno)
   INGEST_CELERY_BROKER_URL: "redis://redis-service-master.nyro-develop.svc.cluster.local:6379/0"
   INGEST_CELERY_RESULT_BACKEND: "redis://redis-service-master.nyro-develop.svc.cluster.local:6379/1"
 
-  # Database (Supabase Transaction Pooler Connection)
-  # *** CORREGIDO: Usar puerto 6543 para el Pooler ***
-  INGEST_POSTGRES_SERVER: "db.ymsilkrhstwxikjiqqog.supabase.co" # Host de tu proyecto Supabase
-  INGEST_POSTGRES_PORT: "6543"  # Puerto del Transaction Pooler
-  INGEST_POSTGRES_USER: "postgres" # Usuario estándar de Supabase (o el específico si cambiaste)
-  INGEST_POSTGRES_DB: "postgres"   # Base de datos estándar de Supabase (o la específica)
-  # INGEST_POSTGRES_PASSWORD se debe gestionar a través de Secrets
+  # Database (Supabase Session Pooler Connection)
+  # *** CORREGIDO: Cambiado a Session Pooler ***
+  INGEST_POSTGRES_SERVER: "aws-0-sa-east-1.pooler.supabase.com" # Host del Session Pooler
+  INGEST_POSTGRES_PORT: "5432"                                  # Puerto del Session Pooler
+  INGEST_POSTGRES_USER: "postgres.ymsilkrhstwxikjiqqog"         # Usuario del Session Pooler (postgres.<project-ref>)
+  INGEST_POSTGRES_DB: "postgres"                               # Base de datos (generalmente 'postgres')
+  # INGEST_POSTGRES_PASSWORD se gestiona a través de Secrets
 
-  # Milvus (using K8s service name - URI completa)
-  # *** CORREGIDO: Nombre de variable consistente con config.py ***
-  INGEST_MILVUS_URI: "http://milvus-service.nyro-develop.svc.cluster.local:19530" # Asegúrate que milvus-service es el nombre correcto de tu servicio Milvus
+  # Milvus (Sin cambios aquí)
+  INGEST_MILVUS_URI: "http://milvus-service.nyro-develop.svc.cluster.local:19530"
   INGEST_MILVUS_COLLECTION_NAME: "document_chunks_haystack"
-  # INGEST_EMBEDDING_DIMENSION: Se setea automáticamente en config.py basado en el modelo OpenAI
 
-  # MinIO (using K8s service name)
-  INGEST_MINIO_ENDPOINT: "minio-service.nyro-develop.svc.cluster.local:9000" # Asegúrate que minio-service es el nombre correcto
+  # MinIO (Sin cambios aquí)
+  INGEST_MINIO_ENDPOINT: "minio-service.nyro-develop.svc.cluster.local:9000"
   INGEST_MINIO_BUCKET_NAME: "ingested-documents"
-  # *** CORREGIDO: Usar booleano YAML ***
-  INGEST_MINIO_USE_SECURE: "false" # Pydantic debería manejar string "false", pero 'false' es mejor
-  # INGEST_MINIO_ACCESS_KEY y INGEST_MINIO_SECRET_KEY se deben gestionar via Secrets
+  INGEST_MINIO_USE_SECURE: "false"
+  # INGEST_MINIO_ACCESS_KEY y INGEST_MINIO_SECRET_KEY se gestionan via Secrets
 
-  # Haystack/OpenAI
+  # Haystack/OpenAI (Sin cambios aquí)
   INGEST_OPENAI_EMBEDDING_MODEL: "text-embedding-3-small"
-  # INGEST_OPENAI_API_KEY se debe gestionar via Secrets
+  # INGEST_OPENAI_API_KEY se gestiona via Secrets
   INGEST_SPLITTER_CHUNK_SIZE: "500"
   INGEST_SPLITTER_CHUNK_OVERLAP: "50"
   INGEST_SPLITTER_SPLIT_BY: "word"
 
   # Add other non-sensitive settings if needed
-  # INGEST_OCR_SERVICE_URL: "http://ocr-service.nyro-develop.svc.cluster.local:80" # Example if using OCR service
