@@ -39,25 +39,25 @@ spec:
                 name: query-service-secrets
           resources: # Definir límites y requests de recursos
             requests:
-              cpu: "250m" # Request inicial (ajustar)
-              memory: "512Mi"
-            limits:
-              cpu: "1000m" # Límite (ajustar)
+              cpu: "500m" # Request inicial (ajustar)
               memory: "1Gi"
+            limits:
+              cpu: "1500m" # Límite (ajustar)
+              memory: "2Gi"
           readinessProbe: # Chequeo para saber si el pod puede recibir tráfico
             httpGet:
               path: / # Ruta del health check en main.py
               port: http # Nombre del puerto definido arriba
-            initialDelaySeconds: 25 # Tiempo antes de empezar a chequear
-            periodSeconds: 15
-            timeoutSeconds: 10
-            failureThreshold: 3
+            initialDelaySeconds: 40 # Tiempo antes de empezar a chequear
+            periodSeconds: 20
+            timeoutSeconds: 15
+            failureThreshold: 5
           livenessProbe: # Chequeo para saber si el pod está vivo (reiniciar si falla)
             httpGet:
               path: / # Ruta del health check
               port: http
             initialDelaySeconds: 50 # Más tiempo antes del primer chequeo de liveness
-            periodSeconds: 20
+            periodSeconds: 30
             timeoutSeconds: 10
             failureThreshold: 3
       # imagePullSecrets: # Descomentar si usas un registro de imágenes privado que requiere autenticación
