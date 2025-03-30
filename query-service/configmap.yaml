@@ -17,7 +17,7 @@ data:
   # QUERY_POSTGRES_PASSWORD va en Secrets
 
   # Milvus
-  QUERY_MILVUS_URI: "http://milvus-service.nyro-develop.svc.cluster.local:19530"
+  QUERY_MILVUS_URI: "http://milvus-milvus.default.svc.cluster.local:19530"
   QUERY_MILVUS_COLLECTION_NAME: "document_chunks_haystack"
   QUERY_MILVUS_EMBEDDING_FIELD: "embedding"
   QUERY_MILVUS_CONTENT_FIELD: "content"
