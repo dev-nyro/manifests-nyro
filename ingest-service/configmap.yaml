@@ -1,4 +1,4 @@
-# configmap.yaml (CORREGIDO - Usando Session Pooler)
+# configmap.yaml (CORREGIDO - Puerto del Pooler)
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -6,16 +6,16 @@ metadata:
   namespace: nyro-develop
 data:
   # General
-  INGEST_LOG_LEVEL: "INFO" # O  "DEBUG"
+  INGEST_LOG_LEVEL: "INFO" # O "DEBUG"
 
   # Celery (Sin cambios aquí, sigue apuntando a Redis interno)
   INGEST_CELERY_BROKER_URL: "redis://redis-service-master.nyro-develop.svc.cluster.local:6379/0"
   INGEST_CELERY_RESULT_BACKEND: "redis://redis-service-master.nyro-develop.svc.cluster.local:6379/1"
 
   # Database (Supabase Session Pooler Connection)
-  # *** CORREGIDO: Cambiado a Session Pooler ***
+  # *** CORREGIDO: Puerto cambiado a 6543 ***
   INGEST_POSTGRES_SERVER: "aws-0-sa-east-1.pooler.supabase.com" # Host del Session Pooler
-  INGEST_POSTGRES_PORT: "5432"                                  # Puerto del Session Pooler
+  INGEST_POSTGRES_PORT: "6543"                                  # Puerto del Session Pooler (CORREGIDO)
   INGEST_POSTGRES_USER: "postgres.ymsilkrhstwxikjiqqog"         # Usuario del Session Pooler (postgres.<project-ref>)
   INGEST_POSTGRES_DB: "postgres"                               # Base de datos (generalmente 'postgres')
   # INGEST_POSTGRES_PASSWORD se gestiona a través de Secrets
