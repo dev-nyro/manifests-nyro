@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: query-service-deployment # Nombre del deployment
+  namespace: nyro-develop
+  labels:
+    app: query-service # Etiqueta principal
+spec:
+  replicas: 1 # Ajustar según necesidad
+  selector:
+    matchLabels:
+      app: query-service # Debe coincidir con las etiquetas del Pod
+  template:
+    metadata:
+      labels:
+        app: query-service # Etiqueta para el Pod
+    spec:
+      containers:
+        - name: query-service # Nombre del contenedor
+          # La imagen será actualizada por el pipeline CI/CD
+          image: ghcr.io/dev-nyro/query-service:latest # Imagen placeholder
+          imagePullPolicy: Always # O IfNotPresent
+          ports:
+            - name: http # Nombre del puerto
+              containerPort: 8001 # Puerto expuesto por Gunicorn/Uvicorn (definido en Dockerfile y config)
+              protocol: TCP
+          command: ["gunicorn"] # Comando principal
+          args: [ # Argumentos para Gunicorn
+              "-k", "uvicorn.workers.UvicornWorker",
+              "-w", "4", # Número de workers (ajustar)
+              "-b", "0.0.0.0:8001", # Bind y puerto interno
+              "-t", "120", # Timeout del worker (ajustar si es necesario)
+              "app.main:app" # Módulo:App FastAPI
+            ]
+          envFrom: # Cargar variables desde ConfigMap y Secret
+            - configMapRef:
+                name: query-service-config
+            - secretRef:
+                name: query-service-secrets
+          resources: # Definir límites y requests de recursos
+            requests:
+              cpu: "250m" # Request inicial (ajustar)
+              memory: "512Mi"
+            limits:
+              cpu: "1000m" # Límite (ajustar)
+              memory: "1Gi"
+          readinessProbe: # Chequeo para saber si el pod puede recibir tráfico
+            httpGet:
+              path: / # Ruta del health check en main.py
+              port: http # Nombre del puerto definido arriba
+            initialDelaySeconds: 25 # Tiempo antes de empezar a chequear
+            periodSeconds: 15
+            timeoutSeconds: 10
+            failureThreshold: 3
+          livenessProbe: # Chequeo para saber si el pod está vivo (reiniciar si falla)
+            httpGet:
+              path: / # Ruta del health check
+              port: http
+            initialDelaySeconds: 50 # Más tiempo antes del primer chequeo de liveness
+            periodSeconds: 20
+            timeoutSeconds: 10
+            failureThreshold: 3
+      # imagePullSecrets: # Descomentar si usas un registro de imágenes privado que requiere autenticación
+      # - name: ghcr-secret # Nombre del secret con las credenciales del registro
