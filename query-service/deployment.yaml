@@ -1,64 +1,66 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: query-service-deployment # Nombre del deployment
+  name: query-service-deployment
   namespace: nyro-develop
   labels:
-    app: query-service # Etiqueta principal
+    app: query-service
 spec:
-  replicas: 1 # Ajustar según necesidad
+  replicas: 1
   selector:
     matchLabels:
-      app: query-service # Debe coincidir con las etiquetas del Pod
+      app: query-service
   template:
     metadata:
       labels:
-        app: query-service # Etiqueta para el Pod
+        app: query-service
     spec:
       containers:
-        - name: query-service # Nombre del contenedor
-          # La imagen será actualizada por el pipeline CI/CD
-          image: ghcr.io/dev-nyro/query-service:develop-251f53f
-          imagePullPolicy: Always # O IfNotPresent
+        - name: query-service
+          image: ghcr.io/dev-nyro/query-service:latest # Imagen placeholder
+          imagePullPolicy: Always
           ports:
-            - name: http # Nombre del puerto
-              containerPort: 8001 # Puerto expuesto por Gunicorn/Uvicorn (definido en Dockerfile y config)
+            - name: http
+              containerPort: 8001
               protocol: TCP
-          command: ["gunicorn"] # Comando principal
-          args: [ # Argumentos para Gunicorn
+          command: ["gunicorn"]
+          args: [
               "-k", "uvicorn.workers.UvicornWorker",
-              "-w", "4", # Número de workers (ajustar)
-              "-b", "0.0.0.0:8001", # Bind y puerto interno
-              "-t", "120", # Timeout del worker (ajustar si es necesario)
-              "app.main:app" # Módulo:App FastAPI
+              # *** CORRECCIÓN: Reducir número de workers ***
+              "-w", "2",             # Reducido de 4 a 2 para aliviar carga inicial
+              "-b", "0.0.0.0:8001",
+              "-t", "120",
+              "app.main:app"
             ]
-          envFrom: # Cargar variables desde ConfigMap y Secret
+          envFrom:
             - configMapRef:
                 name: query-service-config
             - secretRef:
                 name: query-service-secrets
-          resources: # Definir límites y requests de recursos
+          resources: # Mantener los recursos aumentados de la iteración anterior
             requests:
-              cpu: "500m" # Request inicial (ajustar)
+              cpu: "500m"
               memory: "1Gi"
             limits:
-              cpu: "1500m" # Límite (ajustar)
+              cpu: "1500m"
               memory: "2Gi"
-          readinessProbe: # Chequeo para saber si el pod puede recibir tráfico
+          readinessProbe: # Mantener probes ajustados
             httpGet:
-              path: / # Ruta del health check en main.py
-              port: http # Nombre del puerto definido arriba
-            initialDelaySeconds: 40 # Tiempo antes de empezar a chequear
+              path: /
+              port: http
+            initialDelaySeconds: 40
             periodSeconds: 20
             timeoutSeconds: 15
             failureThreshold: 5
-          livenessProbe: # Chequeo para saber si el pod está vivo (reiniciar si falla)
+            successThreshold: 1
+          livenessProbe: # Mantener probes ajustados
             httpGet:
-              path: / # Ruta del health check
+              path: /
               port: http
-            initialDelaySeconds: 50 # Más tiempo antes del primer chequeo de liveness
+            initialDelaySeconds: 60
             periodSeconds: 30
-            timeoutSeconds: 10
+            timeoutSeconds: 15
             failureThreshold: 3
-      # imagePullSecrets: # Descomentar si usas un registro de imágenes privado que requiere autenticación
-      # - name: ghcr-secret # Nombre del secret con las credenciales del registro
+            successThreshold: 1
+      # imagePullSecrets:
+      # - name: ghcr-secret
