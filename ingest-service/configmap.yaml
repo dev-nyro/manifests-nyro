@@ -6,7 +6,7 @@ metadata:
   namespace: nyro-develop
 data:
   # General
-  INGEST_LOG_LEVEL: "INFO" # O "DEBUG"
+  INGEST_LOG_LEVEL: "INFO" # O  "DEBUG"
 
   # Celery (Sin cambios aquí, sigue apuntando a Redis interno)
   INGEST_CELERY_BROKER_URL: "redis://redis-service-master.nyro-develop.svc.cluster.local:6379/0"
