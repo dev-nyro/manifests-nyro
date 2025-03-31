@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-gateway-config
+  namespace: nyro-develop # Asegúrate que el namespace es correcto
+data:
+  # General
+  GATEWAY_LOG_LEVEL: "INFO"
+
+  # URLs de los servicios downstream (usando nombres de Service de K8s)
+  GATEWAY_INGEST_SERVICE_URL: "http://ingest-api-service.nyro-develop.svc.cluster.local:80" # Puerto 80 del Service
+  GATEWAY_QUERY_SERVICE_URL: "http://query-service.nyro-develop.svc.cluster.local:80"   # Puerto 80 del Service
+  # GATEWAY_AUTH_SERVICE_URL: "http://auth-service.nyro-develop.svc.cluster.local:80" # Si existe
+
+  # HTTP Client settings
+  GATEWAY_HTTP_CLIENT_TIMEOUT: "30"
+  GATEWAY_HTTP_CLIENT_MAX_KEEPALIAS_CONNECTIONS: "100"
+  GATEWAY_HTTP_CLIENT_MAX_CONNECTIONS: "200"
+
+  # JWT Algorithm (El Secret va en un objeto Secret)
+  GATEWAY_JWT_ALGORITHM: "HS256"
