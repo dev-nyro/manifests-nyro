@@ -18,7 +18,7 @@ spec:
       containers:
         - name: query-service # Nombre del contenedor
           # La imagen será actualizada por el pipeline CI/CD
-          image: ghcr.io/dev-nyro/query-service:develop-3df8302
+          image: ghcr.io/dev-nyro/query-service:develop-6a783dd
           imagePullPolicy: Always # O IfNotPresent
           ports:
             - name: http
