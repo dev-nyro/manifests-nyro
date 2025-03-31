@@ -1,12 +1,13 @@
+# api-gateway/k8s/gateway-deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: api-gateway-deployment
-  namespace: nyro-develop
+  namespace: nyro-develop # Asegúrate que el namespace es correcto
   labels:
     app: api-gateway
 spec:
-  replicas: 1 # Gateway suele beneficiarse de >1 réplica para disponibilidad
+  replicas: 1 # Considera aumentarlo a 2 o más para alta disponibilidad
   selector:
     matchLabels:
       app: api-gateway
@@ -19,44 +20,46 @@ spec:
         - name: api-gateway
           # La imagen será actualizada por el pipeline CI/CD
           image: ghcr.io/dev-nyro/api-gateway:latest # Placeholder, será reemplazado
-          imagePullPolicy: Always # O IfNotPresent
+          imagePullPolicy: Always # O IfNotPresent si prefieres
           ports:
             - name: http # Nombre del puerto
-              containerPort: 8080 # Puerto expuesto por el Dockerfile y Gunicorn
+              containerPort: 8080 # Puerto expuesto por Dockerfile y Gunicorn
               protocol: TCP
-          # Gunicorn command (no necesita especificarse si el CMD del Dockerfile es correcto)
-          # El CMD del Dockerfile ya es: ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "-w", "4", "-b", "0.0.0.0:$(PORT)", "app.main:app"]
-          # Podemos pasar el puerto vía env var si es necesario sobrescribir el default del Dockerfile
-          env:
-            - name: PORT
-              value: "8080" # Asegura que Gunicorn use este puerto
+          # No se necesita command/args si el CMD del Dockerfile es correcto
+          # env: # La variable PORT ya está definida en el Dockerfile
+          #   - name: PORT
+          #     value: "8080"
           envFrom:
             - configMapRef:
+                # Nombre del ConfigMap que DEBES crear para el gateway
                 name: api-gateway-config
             - secretRef:
+                # Nombre del Secret que DEBES crear para el gateway (con JWT_SECRET, etc.)
                 name: api-gateway-secrets
-          resources: # Ajustar según necesidades
+          resources: # Ajustar según necesidades y monitorización
             requests:
-              cpu: "150m"
-              memory: "256Mi"
+              cpu: "100m"  # Puede empezar bajo si es principalmente I/O
+              memory: "128Mi"
             limits:
               cpu: "500m"
               memory: "512Mi"
           readinessProbe:
             httpGet:
-              path: /health # Endpoint de health check
+              path: /health # Endpoint de health check en main.py
               port: http    # Nombre del puerto del contenedor
-            initialDelaySeconds: 15
+            initialDelaySeconds: 15 # Tiempo para que Gunicorn arranque
             periodSeconds: 10
             timeoutSeconds: 5
             failureThreshold: 3
+            successThreshold: 1
           livenessProbe:
             httpGet:
               path: /health
               port: http
-            initialDelaySeconds: 30
+            initialDelaySeconds: 30 # Más tiempo antes de considerar reiniciar
             periodSeconds: 15
             timeoutSeconds: 5
             failureThreshold: 3
-      # imagePullSecrets: # Descomentar si usas registro privado
-      # - name: ghcr-secret
+            successThreshold: 1
+      # imagePullSecrets: # Descomentar si GHCR es privado para tu clúster
+      # - name: ghcr-secret # Nombre del secreto para acceder a GHCR
