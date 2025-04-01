@@ -1,13 +1,17 @@
 # api-gateway/deployment.yaml
+# --- Deployment para API Gateway ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  # Nombre del Deployment
   name: api-gateway-deployment
-  namespace: nyro-develop # Asegúrate que el namespace es correcto
+  # Namespace donde se desplegará (¡ASEGÚRATE QUE EXISTA!)
+  namespace: nyro-develop
   labels:
     app: api-gateway
 spec:
-  replicas: 1 # Considera aumentarlo a 2 o más para alta disponibilidad
+  # Número de réplicas (considera 2+ para alta disponibilidad)
+  replicas: 1
   selector:
     matchLabels:
       app: api-gateway
@@ -19,47 +23,245 @@ spec:
       containers:
         - name: api-gateway
           # La imagen será actualizada por el pipeline CI/CD
-    image: ghcr.io/dev-nyro/api-gateway:develop-11734aa
-          imagePullPolicy: Always # O IfNotPresent si prefieres
+          # Ejemplo de imagen inicial, el pipeline la reemplazará
+          image: ghcr.io/dev-nyro/api-gateway:develop-initial # <- Esta línea será actualizada por CI/CD
+          # Política de pull de imagen (Always para asegurar la última, IfNotPresent si prefieres caché)
+          imagePullPolicy: Always
           ports:
-            - name: http # Nombre del puerto
-              containerPort: 8080 # Puerto expuesto por Dockerfile y Gunicorn
+            # Nombre del puerto para referencia interna (ej. en Service, Probes)
+            - name: http
+              # Puerto que expone tu aplicación DENTRO del contenedor (Dockerfile/Gunicorn)
+              containerPort: 8080
               protocol: TCP
-          # No se necesita command/args si el CMD del Dockerfile es correcto
-          # env: # La variable PORT ya está definida en el Dockerfile
+          # No se necesita command/args si el CMD/ENTRYPOINT del Dockerfile es correcto y usa el puerto 8080
+          # env: # La variable PORT ya debería estar configurada en tu app o Dockerfile si es necesaria
           #   - name: PORT
           #     value: "8080"
+          # Carga variables de entorno desde ConfigMaps y Secrets
           envFrom:
             - configMapRef:
-                # Nombre del ConfigMap que DEBES crear para el gateway
+                # ¡IMPORTANTE! Este ConfigMap DEBE existir en el namespace 'nyro-develop'
                 name: api-gateway-config
             - secretRef:
-                # Nombre del Secret que DEBES crear para el gateway (con JWT_SECRET, etc.)
+                # ¡IMPORTANTE! Este Secret DEBE existir en el namespace 'nyro-develop'
                 name: api-gateway-secrets
-          resources: # Ajustar según necesidades y monitorización
-            requests:
-              cpu: "100m"  # Puede empezar bajo si es principalmente I/O
-              memory: "128Mi"
-            limits:
-              cpu: "500m"
-              memory: "512Mi"
+          # Límites y solicitudes de recursos (ajustar según monitorización)
+          resources:
+            requests: # Mínimo garantizado
+              cpu: "100m" # 10% de un vCPU
+              memory: "128Mi" # 128 Mebibytes
+            limits: # Máximo permitido
+              cpu: "500m" # 50% de un vCPU
+              memory: "512Mi" # 512 Mebibytes
+          # Sonda de Readiness: ¿Está listo el pod para recibir tráfico?
           readinessProbe:
             httpGet:
-              path: /health # Endpoint de health check en main.py
-              port: http    # Nombre del puerto del contenedor
-            initialDelaySeconds: 15 # Tiempo para que Gunicorn arranque
+              # Path del endpoint de health check en tu API Gateway (¡ASEGÚRATE QUE EXISTA Y FUNCIONE!)
+              path: /health
+              # Referencia al nombre del puerto definido arriba
+              port: http
+            # Espera inicial antes del primer chequeo
+            initialDelaySeconds: 15
+            # Frecuencia del chequeo
             periodSeconds: 10
+            # Tiempo máximo para esperar respuesta
             timeoutSeconds: 5
+            # Umbral de fallos para marcar como No Listo
             failureThreshold: 3
+            # Umbral de éxitos para marcar como Listo
             successThreshold: 1
+          # Sonda de Liveness: ¿Está vivo el pod o necesita reiniciarse?
           livenessProbe:
             httpGet:
+              # Usualmente el mismo endpoint que readiness
               path: /health
               port: http
-            initialDelaySeconds: 30 # Más tiempo antes de considerar reiniciar
+            # Espera inicial más larga antes de considerar reiniciar
+            initialDelaySeconds: 30
             periodSeconds: 15
             timeoutSeconds: 5
             failureThreshold: 3
             successThreshold: 1
-      # imagePullSecrets: # Descomentar si GHCR es privado para tu clúster
-      # - name: ghcr-secret # Nombre del secreto para acceder a GHCR
+      # imagePullSecrets: # Descomentar si GHCR es privado y necesitas un secreto para autenticar
+      # - name: ghcr-secret # Nombre del secreto tipo 'kubernetes.io/dockerconfigjson'
+
+---
+# ingest-service/deployment-api.yaml (Asumiendo que este es el de la API)
+# --- Deployment para Ingest API ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ingest-api-deployment
+  # Namespace donde se desplegará (¡ASEGÚRATE QUE EXISTA!)
+  namespace: nyro-develop
+  labels:
+    app: ingest-api # Etiqueta para el Service y selector
+    component: api # Etiqueta adicional opcional
+spec:
+  replicas: 1 # O más para alta disponibilidad
+  selector:
+    matchLabels:
+      app: ingest-api
+      component: api # Asegúrate que el selector coincida con las labels del template
+  template:
+    metadata:
+      labels:
+        app: ingest-api
+        component: api
+    spec:
+      containers:
+        - name: ingest-api
+          # La imagen será actualizada por el pipeline CI/CD
+          image: ghcr.io/dev-nyro/ingest-service:develop-initial # <- Esta línea será actualizada por CI/CD
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              # Puerto que expone Gunicorn DENTRO del contenedor
+              containerPort: 8000
+              protocol: TCP
+          # Comando explícito para Gunicorn (asegúrate que 'app.main:app' es correcto)
+          # Si tu Dockerfile ya tiene un CMD/ENTRYPOINT correcto, podrías omitir 'command' y 'args'
+          command: ["gunicorn"]
+          args: [
+            "-k", "uvicorn.workers.UvicornWorker", # Worker asíncrono Uvicorn
+            "-w", "4",                             # Número de workers (ajustar según CPU/memoria disponibles)
+            "-b", "0.0.0.0:8000",                  # Escuchar en todas las interfaces en el puerto 8000
+            "-t", "120",                           # Timeout del worker (120s), útil para requests largos
+            "app.main:app"                         # Módulo y variable de la app FastAPI (ej: archivo main.py, app = FastAPI())
+          ]
+          envFrom:
+            - configMapRef:
+                # ¡IMPORTANTE! Este ConfigMap DEBE existir
+                name: ingest-service-config
+            - secretRef:
+                # ¡IMPORTANTE! Este Secret DEBE existir
+                name: ingest-service-secrets
+          resources: # Ajusta según tus necesidades y pruebas
+            requests:
+              cpu: "200m"
+              memory: "512Mi"
+            limits:
+              cpu: "1000m" # 1 vCPU
+              memory: "1Gi"  # 1 Gibibyte
+          # Sonda de Readiness (usando el endpoint raíz '/' como health check)
+          readinessProbe:
+            httpGet:
+              # ¡ASEGÚRATE QUE TU APP RESPONDA EN '/' CON UN 2xx PARA HEALTH CHECK!
+              path: /
+              port: http
+            initialDelaySeconds: 20 # Más tiempo inicial
+            periodSeconds: 15
+            timeoutSeconds: 10 # Timeout más largo para el probe
+            failureThreshold: 3
+          # Sonda de Liveness
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 45 # Más tiempo antes de reiniciar
+            periodSeconds: 20
+            timeoutSeconds: 10
+            failureThreshold: 3
+      # imagePullSecrets: # Descomentar si es necesario
+      # - name: your-registry-secret
+
+# --- Deployment para Ingest Worker (Ejemplo si tienes uno separado) ---
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: ingest-worker-deployment
+#   namespace: nyro-develop
+#   labels:
+#     app: ingest-worker
+#     component: worker
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       app: ingest-worker
+#       component: worker
+#   template:
+#     metadata:
+#       labels:
+#         app: ingest-worker
+#         component: worker
+#     spec:
+#       containers:
+#         - name: ingest-worker
+#           # USA LA MISMA IMAGEN que la API si el código del worker está junto
+#           image: ghcr.io/dev-nyro/ingest-service:develop-initial # <- Esta línea será actualizada por CI/CD
+#           imagePullPolicy: Always
+#           # Los workers generalmente no exponen puertos, pero sí necesitan env vars
+#           # command: ["python", "worker.py"] # O el comando que inicie tu worker
+#           envFrom:
+#             - configMapRef:
+#                 name: ingest-service-config
+#             - secretRef:
+#                 name: ingest-service-secrets
+#           resources: # Ajustar recursos para el worker
+#             requests:
+#               cpu: "100m"
+#               memory: "256Mi"
+#             limits:
+#               cpu: "500m"
+#               memory: "512Mi"
+#           # Los workers a menudo no tienen probes HTTP, podrías necesitar 'exec' probes
+#           # o simplemente confiar en que Kubernetes reinicie si el proceso principal falla.
+#       # imagePullSecrets:
+#       # - name: your-registry-secret
+
+# --- Deployment para Query Service (Asumiendo estructura similar) ---
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: query-service-deployment
+#   namespace: nyro-develop
+#   labels:
+#     app: query-service
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       app: query-service
+#   template:
+#     metadata:
+#       labels:
+#         app: query-service
+#     spec:
+#       containers:
+#         - name: query-service
+#           image: ghcr.io/dev-nyro/query-service:develop-initial # <- Esta línea será actualizada por CI/CD
+#           imagePullPolicy: Always
+#           ports:
+#             - name: http
+#               containerPort: 8001 # O el puerto que use query-service
+#               protocol: TCP
+#           # command: [...] # Si necesita Gunicorn/uvicorn, añadir config similar a ingest-api
+#           # args: [...]
+#           envFrom:
+#             - configMapRef:
+#                 name: query-service-config # ¡DEBE EXISTIR!
+#             - secretRef:
+#                 name: query-service-secrets # ¡DEBE EXISTIR!
+#           resources: # Ajustar
+#             requests:
+#               cpu: "100m"
+#               memory: "256Mi"
+#             limits:
+#               cpu: "500m"
+#               memory: "512Mi"
+#           readinessProbe: # Ajustar path y puerto
+#             httpGet:
+#               path: /health # O '/'
+#               port: http
+#             initialDelaySeconds: 15
+#             periodSeconds: 10
+#           livenessProbe: # Ajustar path y puerto
+#             httpGet:
+#               path: /health # O '/'
+#               port: http
+#             initialDelaySeconds: 30
+#             periodSeconds: 15
+#       # imagePullSecrets:
+#       # - name: your-registry-secret
+
