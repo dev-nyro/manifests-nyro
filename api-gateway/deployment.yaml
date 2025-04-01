@@ -19,7 +19,7 @@ spec:
       containers:
         - name: api-gateway
           # La imagen será actualizada por el pipeline CI/CD
-          image: ghcr.io/dev-nyro/api-gateway:latest # Placeholder, será reemplazado
+    image: ghcr.io/dev-nyro/api-gateway:develop-11734aa
           imagePullPolicy: Always # O IfNotPresent si prefieres
           ports:
             - name: http # Nombre del puerto
