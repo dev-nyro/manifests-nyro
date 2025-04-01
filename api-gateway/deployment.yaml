@@ -1,5 +1,5 @@
 # api-gateway/deployment.yaml
-# --- Deployment para API Gateway ---
+# --- Deployment para API Gateway (SIN Liveness/Readiness Probes) ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -24,11 +24,11 @@ spec:
         - name: api-gateway
           # La imagen será actualizada por el pipeline CI/CD
           # Ejemplo de imagen inicial, el pipeline la reemplazará
-    image: ghcr.io/dev-nyro/api-gateway:develop-d58695f
+          image: ghcr.io/dev-nyro/api-gateway:develop-d58695f # <- Esta línea será actualizada por el CI/CD
           # Política de pull de imagen (Always para asegurar la última, IfNotPresent si prefieres caché)
           imagePullPolicy: Always
           ports:
-            # Nombre del puerto para referencia interna (ej. en Service, Probes)
+            # Nombre del puerto para referencia interna (ej. en Service)
             - name: http
               # Puerto que expone tu aplicación DENTRO del contenedor (Dockerfile/Gunicorn)
               containerPort: 8080
@@ -53,34 +53,8 @@ spec:
             limits: # Máximo permitido
               cpu: "500m" # 50% de un vCPU
               memory: "512Mi" # 512 Mebibytes
-          # Sonda de Readiness: ¿Está listo el pod para recibir tráfico?
-          readinessProbe:
-            httpGet:
-              # Path del endpoint de health check en tu API Gateway (¡ASEGÚRATE QUE EXISTA Y FUNCIONE!)
-              path: /health
-              # Referencia al nombre del puerto definido arriba
-              port: http
-            # Espera inicial antes del primer chequeo
-            initialDelaySeconds: 15
-            # Frecuencia del chequeo
-            periodSeconds: 10
-            # Tiempo máximo para esperar respuesta
-            timeoutSeconds: 5
-            # Umbral de fallos para marcar como No Listo
-            failureThreshold: 3
-            # Umbral de éxitos para marcar como Listo
-            successThreshold: 1
-          # Sonda de Liveness: ¿Está vivo el pod o necesita reiniciarse?
-          livenessProbe:
-            httpGet:
-              # Usualmente el mismo endpoint que readiness
-              path: /health
-              port: http
-            # Espera inicial más larga antes de considerar reiniciar
-            initialDelaySeconds: 30
-            periodSeconds: 15
-            timeoutSeconds: 5
-            failureThreshold: 3
-            successThreshold: 1
+          # --- Secciones livenessProbe y readinessProbe eliminadas ---
+
       # imagePullSecrets: # Descomentar si GHCR es privado y necesitas un secreto para autenticar
       # - name: ghcr-secret # Nombre del secreto tipo 'kubernetes.io/dockerconfigjson'
+
