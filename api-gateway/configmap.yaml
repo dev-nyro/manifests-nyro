@@ -6,7 +6,7 @@ metadata:
   namespace: nyro-develop # Asegúrate que el namespace sea correcto
 data:
   # General
-  GATEWAY_LOG_LEVEL: "INFO" # O "DEBUG" para más detalle
+  GATEWAY_LOG_LEVEL: "DEBUG" # O "DEBUG" para más detalle
 
   # URLs de los servicios downstream (usando nombres de Service de K8s)
   GATEWAY_INGEST_SERVICE_URL: "http://ingest-api-service.nyro-develop.svc.cluster.local:80"
