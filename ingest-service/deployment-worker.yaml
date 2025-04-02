@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: ingest-worker
-          image: ghcr.io/dev-nyro/ingest-service:develop-3078d8f
+          image: ghcr.io/dev-nyro/ingest-service:develop-ced8a6d
           imagePullPolicy: Always # Or IfNotPresent
           # Command to run the Celery worker
           # Use gevent or eventlet for async tasks
