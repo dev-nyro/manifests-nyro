@@ -1,3 +1,4 @@
+# query-service/configmap.yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -9,7 +10,7 @@ data:
 
   # Database (Supabase Session Pooler)
   QUERY_POSTGRES_SERVER: "aws-0-sa-east-1.pooler.supabase.com"
-  QUERY_POSTGRES_PORT: "5432"
+  QUERY_POSTGRES_PORT: "6543"
   # !! IMPORTANTE: Asegúrate que SUPABASE_PROJECT_REF esté definido aquí o como variable de entorno global en el pod si tu config.py lo usa !!
   SUPABASE_PROJECT_REF: "ymsilkrhstwxikjiqqog" # Reemplaza con tu project ref real
   QUERY_POSTGRES_USER: "postgres.ymsilkrhstwxikjiqqog" # Usuario del pooler (postgres.<project-ref>)

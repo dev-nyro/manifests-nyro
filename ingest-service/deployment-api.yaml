@@ -1,4 +1,5 @@
-apiVersion: apps/v1
+# ingest-service/deployment-api.yaml
+piVersion: apps/v1
 kind: Deployment
 metadata:
   name: ingest-api-deployment
