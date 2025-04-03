@@ -1,9 +1,8 @@
-# query-service/deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: query-service-deployment
-  namespace: nyro-develop
+  namespace: nyro-develop # Asegúrate que el namespace sea el correcto
   labels:
     app: query-service
 spec:
@@ -18,9 +17,9 @@ spec:
     spec:
       containers:
         - name: query-service # Nombre del contenedor
-          # La imagen será actualizada por el pipeline CI/CD
+          # La imagen será actualizada por el pipeline CI/CD (este es un placeholder)
           image: ghcr.io/dev-nyro/query-service:develop-d26f90b
-          imagePullPolicy: Always # O IfNotPresent
+          imagePullPolicy: Always # O IfNotPresent si prefieres usar caché local en dev
           ports:
             - name: http
               containerPort: 8001
@@ -28,41 +27,46 @@ spec:
           command: ["gunicorn"]
           args: [
               "-k", "uvicorn.workers.UvicornWorker",
-              # *** CORRECCIÓN: Reducir número de workers ***
-              "-w", "2",             # Reducido de 4 a 2 para aliviar carga inicial
+              # Mantener número reducido de workers puede ayudar con el uso de memoria/cpu inicial
+              "-w", "2",
               "-b", "0.0.0.0:8001",
-              "-t", "120",
+              "-t", "120", # Timeout para workers
               "app.main:app"
             ]
           envFrom:
             - configMapRef:
-                name: query-service-config
+                name: query-service-config # Asegúrate que el nombre sea correcto
             - secretRef:
-                name: query-service-secrets
-          resources: # Mantener los recursos aumentados de la iteración anterior
+                name: query-service-secrets # Asegúrate que el nombre sea correcto
+          resources: # Mantener los recursos definidos
             requests:
               cpu: "500m"
               memory: "1Gi"
             limits:
               cpu: "1500m"
               memory: "2Gi"
-          readinessProbe: # Mantener probes ajustados
-            httpGet:
-              path: /
-              port: http
-            initialDelaySeconds: 40
-            periodSeconds: 20
-            timeoutSeconds: 15
-            failureThreshold: 5
-            successThreshold: 1
-          livenessProbe: # Mantener probes ajustados
-            httpGet:
-              path: /
-              port: http
-            initialDelaySeconds: 60
-            periodSeconds: 30
-            timeoutSeconds: 15
-            failureThreshold: 3
-            successThreshold: 1
+          # --- LIVENESS PROBE REMOVED as requested ---
+          # livenessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: http
+          #   initialDelaySeconds: 60 # Aumentado
+          #   periodSeconds: 30
+          #   timeoutSeconds: 15 # Aumentado
+          #   failureThreshold: 3
+          #   successThreshold: 1
+
+          # --- READINESS PROBE REMOVED as requested ---
+          # readinessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: http
+          #   initialDelaySeconds: 40 # Aumentado
+          #   periodSeconds: 20
+          #   timeoutSeconds: 15 # Aumentado
+          #   failureThreshold: 5 # Aumentado
+          #   successThreshold: 1
+
+      # Si usas un registro privado como GHCR, necesitarás esto:
       # imagePullSecrets:
-      # - name: ghcr-secret
+      # - name: ghcr-secret # Nombre del secret para acceder a GHCR
