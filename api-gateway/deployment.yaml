@@ -24,7 +24,7 @@ spec:
         - name: api-gateway
           # La imagen será actualizada por el pipeline CI/CD
           # Ejemplo de imagen inicial, el pipeline la reemplazará
-          image: ghcr.io/dev-nyro/api-gateway:develop-3107f3b
+          image: ghcr.io/dev-nyro/api-gateway:develop-3053c02
           # Política de pull de imagen (Always para asegurar la última, IfNotPresent si prefieres caché)
           imagePullPolicy: Always
           ports:
