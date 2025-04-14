@@ -8,39 +8,38 @@ data:
   # General
   QUERY_LOG_LEVEL: "INFO"
 
-  # Database (Supabase Session Pooler)
-  QUERY_POSTGRES_SERVER: "aws-0-sa-east-1.pooler.supabase.com"
-  QUERY_POSTGRES_PORT: "6543"
-  # !! IMPORTANTE: Asegúrate que SUPABASE_PROJECT_REF esté definido aquí o como variable de entorno global en el pod si tu config.py lo usa !!
-  SUPABASE_PROJECT_REF: "ymsilkrhstwxikjiqqog" # Reemplaza con tu project ref real
-  QUERY_POSTGRES_USER: "postgres.ymsilkrhstwxikjiqqog" # Usuario del pooler (postgres.<project-ref>)
-  QUERY_POSTGRES_DB: "postgres"
-  # QUERY_POSTGRES_PASSWORD va en Secrets
+  # --- Configuración PostgreSQL INTERNA ---
+  QUERY_POSTGRES_SERVER: "postgresql-service.nyro-develop.svc.cluster.local"
+  QUERY_POSTGRES_PORT: "5432"
+  QUERY_POSTGRES_USER: "postgres"
+  QUERY_POSTGRES_DB: "atenex"
+  # QUERY_POSTGRES_PASSWORD se define en el Secret 'query-service-secrets'
+  # ----------------------------------------
 
-  # Milvus
-  QUERY_MILVUS_URI: "http://milvus-milvus.default.svc.cluster.local:19530"
-  QUERY_MILVUS_COLLECTION_NAME: "document_chunks_haystack"
+  # --- Eliminada variable específica de Supabase ---
+  # SUPABASE_PROJECT_REF: "..." # Ya no es necesaria aquí
+
+  # Milvus (Sin cambios respecto a tu versión anterior)
+  QUERY_MILVUS_URI: "http://milvus-service.default.svc.cluster.local:19530" # O default si sigue allí
+  QUERY_MILVUS_COLLECTION_NAME: "document_chunks_haystack" # Mantén tu nombre de colección
   QUERY_MILVUS_EMBEDDING_FIELD: "embedding"
   QUERY_MILVUS_CONTENT_FIELD: "content"
-  # QUERY_MILVUS_METADATA_FIELDS: # Se usa el default de config.py
-  # QUERY_MILVUS_SEARCH_PARAMS: # Se usa el default de config.py
-  QUERY_MILVUS_COMPANY_ID_FIELD: "company_id"
+  QUERY_MILVUS_COMPANY_ID_FIELD: "company_id" # Campo para filtrar por compañía en Milvus
 
-  # OpenAI Embedding
+  # OpenAI Embedding (Sin cambios)
   QUERY_OPENAI_EMBEDDING_MODEL: "text-embedding-3-small"
-  QUERY_EMBEDDING_DIMENSION: "1536" # Asegúrate que coincida con el modelo
+  QUERY_EMBEDDING_DIMENSION: "1536"
   # QUERY_OPENAI_API_KEY va en Secrets
 
-  # Gemini LLM
+  # Gemini LLM (Sin cambios)
   QUERY_GEMINI_MODEL_NAME: "gemini-1.5-flash-latest"
   # QUERY_GEMINI_API_KEY va en Secrets
 
-  # RAG Pipeline
+  # RAG Pipeline (Sin cambios)
   QUERY_RETRIEVER_TOP_K: "5"
-  # QUERY_RAG_PROMPT_TEMPLATE: # Se usa el default de config.py
-  # QUERY_MAX_PROMPT_TOKENS: # Se usa el default de config.py
+  # QUERY_RAG_PROMPT_TEMPLATE: # Usará el default de config.py si no se define aquí
 
-  # Service Client Config
+  # Service Client Config (Sin cambios)
   QUERY_HTTP_CLIENT_TIMEOUT: "60"
   QUERY_HTTP_CLIENT_MAX_RETRIES: "2"
   QUERY_HTTP_CLIENT_BACKOFF_FACTOR: "1.0"

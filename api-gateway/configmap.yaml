@@ -6,32 +6,42 @@ metadata:
   namespace: nyro-develop # Asegúrate que el namespace sea correcto
 data:
   # General
-  GATEWAY_LOG_LEVEL: "DEBUG" # O "DEBUG" para más detalle
+  GATEWAY_LOG_LEVEL: "INFO" # O "DEBUG" para más detalle
 
   # URLs de los servicios downstream (usando nombres de Service de K8s)
+  # Sin cambios aquí, ya apuntan a servicios internos
   GATEWAY_INGEST_SERVICE_URL: "http://ingest-api-service.nyro-develop.svc.cluster.local:80"
   GATEWAY_QUERY_SERVICE_URL: "http://query-service.nyro-develop.svc.cluster.local:80"
   # GATEWAY_AUTH_SERVICE_URL: "http://auth-service.nyro-develop.svc.cluster.local:80" # Descomentar si se usa
 
-  # --- VARIABLE AÑADIDA ---
-  # URL del proyecto Supabase (la misma que usa el frontend)
-  GATEWAY_SUPABASE_URL: "https://ymsilkrhstwxikjiqqog.supabase.co" # <-- ¡TU URL REAL DE SUPABASE!
-  # ------------------------
+  # --- Configuración PostgreSQL INTERNA ---
+  # Apunta al Service de Kubernetes para PostgreSQL dentro del mismo namespace
+  GATEWAY_POSTGRES_SERVER: "postgresql-service.nyro-develop.svc.cluster.local"
+  # Puerto estándar de PostgreSQL
+  GATEWAY_POSTGRES_PORT: "5432"
+  # Usuario de la base de datos interna (asumiendo 'postgres', cambia si es diferente)
+  GATEWAY_POSTGRES_USER: "postgres"
+  # Nombre de la base de datos interna
+  GATEWAY_POSTGRES_DB: "atenex"
+  # GATEWAY_POSTGRES_PASSWORD se define en el Secret 'api-gateway-secrets'
+  # ----------------------------------------
 
-  # --- VARIABLE AÑADIDA ---
-  # Company ID por defecto a asignar si falta en el token
-  # ¡REEMPLAZA con un UUID válido de una compañía existente en tu sistema!
-  GATEWAY_DEFAULT_COMPANY_ID: "d7387dc8-0312-4b1c-97a5-f96f7995f36c"
-  # ------------------------
+  # --- Eliminada variable específica de Supabase ---
+  # GATEWAY_SUPABASE_URL: "..." # Ya no es necesaria
 
-  # HTTP Client settings (Ajustados según tu diff)
+  # --- Company ID por defecto ---
+  # ¡REEMPLAZA con un UUID válido de una compañía existente en tu DB interna!
+  GATEWAY_DEFAULT_COMPANY_ID: "d7387dc8-0312-4b1c-97a5-f96f7995f36c" # Mantén tu valor real
+
+  # HTTP Client settings (Sin cambios respecto a tu versión anterior)
   GATEWAY_HTTP_CLIENT_TIMEOUT: "30"
-  GATEWAY_HTTP_CLIENT_MAX_KEEPALIAS_CONNECTIONS: "100" # Nota: El nombre parece incorrecto en tu diff (KEEPALIAS vs KEEPALIVE)
+  # Nota: Asegúrate que tu código usa 'GATEWAY_HTTP_CLIENT_MAX_KEEPALIVE_CONNECTIONS' si esa es la variable correcta
+  GATEWAY_HTTP_CLIENT_MAX_KEEPALIAS_CONNECTIONS: "100" # O renombra a KEEPALIVE si es un typo
   GATEWAY_HTTP_CLIENT_MAX_CONNECTIONS: "200"
 
   # JWT Algorithm (El Secret va en un objeto Secret)
   GATEWAY_JWT_ALGORITHM: "HS256"
 
-  # Variables que estaban en el diff pero no directamente usadas por el gateway (podrían quitarse si no las necesitas aquí)
+  # URLs externas opcionales (Manténlas si tu aplicación las usa)
   # GATEWAY_VERCEL_FRONTEND_URL: "https://atenex-frontend.vercel.app"
   # NGROK_URL: "https://tu-id.ngrok-free.app"
