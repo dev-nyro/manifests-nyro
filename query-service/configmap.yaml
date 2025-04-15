@@ -1,4 +1,3 @@
-# query-service/configmap.yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -6,25 +5,23 @@ metadata:
   namespace: nyro-develop # Asegúrate que el namespace es correcto
 data:
   # General
-  QUERY_LOG_LEVEL: "INFO"
+  QUERY_LOG_LEVEL: "INFO" # O "DEBUG" para más detalle
 
   # --- Configuración PostgreSQL INTERNA ---
-  QUERY_POSTGRES_SERVER: "postgresql-service.nyro-develop.svc.cluster.local"
+  QUERY_POSTGRES_SERVER: "postgresql-service.nyro-develop.svc.cluster.local" # Parece correcto ahora
   QUERY_POSTGRES_PORT: "5432"
   QUERY_POSTGRES_USER: "postgres"
-  QUERY_POSTGRES_DB: "atenex"
+  QUERY_POSTGRES_DB: "atenex" # Confirmado
   # QUERY_POSTGRES_PASSWORD se define en el Secret 'query-service-secrets'
   # ----------------------------------------
 
-  # --- Eliminada variable específica de Supabase ---
-  # SUPABASE_PROJECT_REF: "..." # Ya no es necesaria aquí
-
-  # Milvus (Sin cambios respecto a tu versión anterior)
-  QUERY_MILVUS_URI: "http://milvus-service.default.svc.cluster.local:19530" # O default si sigue allí
-  QUERY_MILVUS_COLLECTION_NAME: "document_chunks_haystack" # Mantén tu nombre de colección
-  QUERY_MILVUS_EMBEDDING_FIELD: "embedding"
-  QUERY_MILVUS_CONTENT_FIELD: "content"
-  QUERY_MILVUS_COMPANY_ID_FIELD: "company_id" # Campo para filtrar por compañía en Milvus
+  # --- CORRECCIÓN: Apuntar al nombre de servicio correcto de Milvus ---
+  QUERY_MILVUS_URI: "http://milvus-milvus.default.svc.cluster.local:19530" # <-- CORREGIDO (milvus-milvus en namespace default según kubectl)
+  QUERY_MILVUS_COLLECTION_NAME: "document_chunks_haystack"
+  # QUITAR argumentos no usados por milvus-haystack 2.x:
+  # QUERY_MILVUS_EMBEDDING_FIELD: "embedding" # Eliminado
+  # QUERY_MILVUS_CONTENT_FIELD: "content"     # Eliminado
+  QUERY_MILVUS_COMPANY_ID_FIELD: "company_id" # Mantener si lo usas en filtros Haystack
 
   # OpenAI Embedding (Sin cambios)
   QUERY_OPENAI_EMBEDDING_MODEL: "text-embedding-3-small"
