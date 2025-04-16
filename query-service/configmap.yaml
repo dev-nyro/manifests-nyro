@@ -1,42 +1,36 @@
+# k8s/query-service-configmap.yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: query-service-config
-  namespace: nyro-develop # Asegúrate que el namespace es correcto
+  namespace: nyro-develop
 data:
-  # General
-  QUERY_LOG_LEVEL: "INFO" # O "DEBUG" para más detalle
+  QUERY_LOG_LEVEL: "INFO"
 
-  # --- Configuración PostgreSQL INTERNA ---
-  QUERY_POSTGRES_SERVER: "postgresql-service.nyro-develop.svc.cluster.local" # Parece correcto ahora
+  # PostgreSQL Interno
+  QUERY_POSTGRES_SERVER: "postgresql-service.nyro-develop.svc.cluster.local"
   QUERY_POSTGRES_PORT: "5432"
   QUERY_POSTGRES_USER: "postgres"
-  QUERY_POSTGRES_DB: "atenex" # Confirmado
-  # QUERY_POSTGRES_PASSWORD se define en el Secret 'query-service-secrets'
-  # ----------------------------------------
+  QUERY_POSTGRES_DB: "atenex"
 
-  # --- CORRECCIÓN: Apuntar al nombre de servicio correcto de Milvus ---
-  QUERY_MILVUS_URI: "http://milvus-milvus.default.svc.cluster.local:19530" # <-- CORREGIDO (milvus-milvus en namespace default según kubectl)
-  QUERY_MILVUS_COLLECTION_NAME: "document_chunks_haystack"
-  # QUITAR argumentos no usados por milvus-haystack 2.x:
-  # QUERY_MILVUS_EMBEDDING_FIELD: "embedding" # Eliminado
-  # QUERY_MILVUS_CONTENT_FIELD: "content"     # Eliminado
-  QUERY_MILVUS_COMPANY_ID_FIELD: "company_id" # Mantener si lo usas en filtros Haystack
+  # --- Milvus ---
+  # *** CORREGIDO: Apunta al servicio en namespace 'default' ***
+  QUERY_MILVUS_URI: "http://milvus-milvus.default.svc.cluster.local:19530"
+  QUERY_MILVUS_COLLECTION_NAME: "document_chunks_haystack" # Nombre de tu colección
+  QUERY_MILVUS_COMPANY_ID_FIELD: "company_id" # Campo para filtrar por tenant
 
-  # OpenAI Embedding (Sin cambios)
+  # OpenAI Embedding
   QUERY_OPENAI_EMBEDDING_MODEL: "text-embedding-3-small"
-  QUERY_EMBEDDING_DIMENSION: "1536"
-  # QUERY_OPENAI_API_KEY va en Secrets
+  QUERY_EMBEDDING_DIMENSION: "1536" # Verificado en config.py
 
-  # Gemini LLM (Sin cambios)
+  # Gemini LLM
   QUERY_GEMINI_MODEL_NAME: "gemini-1.5-flash-latest"
-  # QUERY_GEMINI_API_KEY va en Secrets
 
-  # RAG Pipeline (Sin cambios)
+  # RAG Pipeline
   QUERY_RETRIEVER_TOP_K: "5"
-  # QUERY_RAG_PROMPT_TEMPLATE: # Usará el default de config.py si no se define aquí
+  # QUERY_RAG_PROMPT_TEMPLATE: "" # Usa default
 
-  # Service Client Config (Sin cambios)
+  # Service Client Config
   QUERY_HTTP_CLIENT_TIMEOUT: "60"
   QUERY_HTTP_CLIENT_MAX_RETRIES: "2"
   QUERY_HTTP_CLIENT_BACKOFF_FACTOR: "1.0"
