@@ -30,7 +30,6 @@ spec:
               "-k", "uvicorn.workers.UvicornWorker", # Worker asíncrono
               "-w", "4",                             # Número de workers (ajustar según CPU/memoria)
               "-b", "0.0.0.0:8000",                  # Bind a todas las interfaces en el puerto 8000
-              # *** CORREGIDO: Añadir timeout más largo ***
               "-t", "120",                           # Timeout del worker en segundos (incrementado de 30 a 120)
               "app.main:app"                         # Módulo y aplicación FastAPI
             ]
@@ -46,22 +45,5 @@ spec:
             limits:
               cpu: "1000m"
               memory: "1Gi"
-          # Readiness/Liveness probes ahora usarán el health check '/' mejorado
-          readinessProbe:
-            httpGet:
-              path: / # Llama al health check
-              port: http
-            initialDelaySeconds: 20 # Dar más tiempo inicial antes del primer chequeo
-            periodSeconds: 15
-            timeoutSeconds: 10 # Timeout para la respuesta del probe
-            failureThreshold: 3
-          livenessProbe:
-            httpGet:
-              path: / # Llama al health check
-              port: http
-            initialDelaySeconds: 45 # Dar más tiempo antes de considerar matar el pod
-            periodSeconds: 20
-            timeoutSeconds: 10
-            failureThreshold: 3
       # imagePullSecrets: # Descomentar si usas registro privado
       # - name: your-registry-secret
