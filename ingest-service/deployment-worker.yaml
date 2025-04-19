@@ -30,7 +30,7 @@ spec:
       containers:
         - name: ingest-worker
           # Asegúrate que la imagen es la correcta y está actualizada
-          image: ghcr.io/dev-nyro/ingest-service:develop-94e463d
+          image: ghcr.io/dev-nyro/ingest-service:develop-aa2cdf9
           imagePullPolicy: Always # O IfNotPresent
           # ***** CONCURRENCIA AUMENTADA *****
           command: ["celery"]
