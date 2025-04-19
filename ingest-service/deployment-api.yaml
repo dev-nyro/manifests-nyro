@@ -3,11 +3,11 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: ingest-api-deployment
-  namespace: nyro-develop # Asegúrate que es el namespace correcto
+  namespace: nyro-develop
   labels:
     app: ingest-api
 spec:
-  replicas: 1 # O más si necesitas alta disponibilidad
+  replicas: 1 # Puedes aumentar si la API recibe muchas peticiones simultáneas
   selector:
     matchLabels:
       app: ingest-api
@@ -18,32 +18,35 @@ spec:
     spec:
       containers:
         - name: ingest-api
-          image: ghcr.io/dev-nyro/ingest-service:develop-0964fe6
-          imagePullPolicy: Always # Or IfNotPresent
+          # Asegúrate que la imagen es la correcta y está actualizada
+          image: ghcr.io/dev-nyro/ingest-service:develop-0964fe6 # Reemplaza con tu tag/digest más reciente si es necesario
+          imagePullPolicy: Always # O IfNotPresent
           ports:
             - name: http
-              containerPort: 8000
+              containerPort: 8000 # Puerto que expone Gunicorn/Uvicorn
               protocol: TCP
-          # Command to run the FastAPI app with Gunicorn
           command: ["gunicorn"]
           args: [
-              "-k", "uvicorn.workers.UvicornWorker", # Worker asíncrono
-              "-w", "4",                             # Número de workers (ajustar según CPU/memoria)
-              "-b", "0.0.0.0:8000",                  # Bind a todas las interfaces en el puerto 8000
-              "-t", "120",                           # Timeout del worker en segundos (incrementado de 30 a 120)
-              "app.main:app"                         # Módulo y aplicación FastAPI
+              "-k", "uvicorn.workers.UvicornWorker",
+              "-w", "4",                             # Número de workers (ajustar según CPU/memoria disponible)
+              "-b", "0.0.0.0:8000",
+              "-t", "120",                           # Timeout extendido
+              "--log-level", "info",                 # Nivel de log para Gunicorn/Uvicorn
+              "app.main:app"
             ]
           envFrom:
             - configMapRef:
-                name: ingest-service-config # Asegúrate que el nombre es correcto
+                name: ingest-service-config
             - secretRef:
-                name: ingest-service-secrets # Asegúrate que el nombre es correcto
-          resources: # Ajusta según tus necesidades y pruebas
+                name: ingest-service-secrets
+          # ***** RECURSOS AUMENTADOS Y PROBES ELIMINADOS *****
+          resources:
             requests:
-              cpu: "200m"
+              cpu: "250m"  # Un poco más de request base
               memory: "512Mi"
             limits:
-              cpu: "1000m"
-              memory: "1Gi"
+              cpu: "1500m" # Permitir picos de CPU
+              memory: "2Gi"  # Límite de RAM aumentado a 2 GiB
+          # Se eliminan livenessProbe y readinessProbe según solicitud
       # imagePullSecrets: # Descomentar si usas registro privado
       # - name: your-registry-secret

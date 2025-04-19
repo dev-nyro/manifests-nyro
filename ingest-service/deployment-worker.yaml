@@ -7,7 +7,7 @@ metadata:
   labels:
     app: ingest-worker
 spec:
-  replicas: 1
+  replicas: 1 # Puedes aumentar a 2 o más si una sola CPU/GPU no es suficiente para la carga
   selector:
     matchLabels:
       app: ingest-worker
@@ -16,37 +16,43 @@ spec:
       labels:
         app: ingest-worker
     spec:
+      # --- Comentario GPU ---
+      # Para usar GPU (ej. tu RTX 4060), necesitas:
+      # 1. Nodos con GPU y drivers NVIDIA + NVIDIA Container Toolkit instalados.
+      # 2. El Dockerfile debe incluir PyTorch+CUDA y las dependencias necesarias.
+      # 3. Descomentar y ajustar la sección 'resources' abajo para solicitar GPUs.
+      # 4. Cambiar OpenAIDocumentEmbedder por un embedder local compatible con GPU en process_document.py.
+      # 5. Posiblemente añadir nodeSelector o tolerations si los nodos GPU están etiquetados/taintados.
+      # Ejemplo nodeSelector (si tus nodos GPU tienen esta etiqueta):
+      # nodeSelector:
+      #   gpu-type: "nvidia-rtx-4060" # O la etiqueta que uses
+      # ---------------------
       containers:
         - name: ingest-worker
-          image: ghcr.io/dev-nyro/ingest-service:develop-0964fe6
-          imagePullPolicy: Always # Or IfNotPresent
-          # Command to run the Celery worker
-          # Use gevent or eventlet for async tasks
+          # Asegúrate que la imagen es la correcta y está actualizada
+          image: ghcr.io/dev-nyro/ingest-service:develop-0964fe6 # Reemplaza con tu tag/digest más reciente si es necesario
+          imagePullPolicy: Always # O IfNotPresent
+          # ***** CONCURRENCIA AUMENTADA *****
           command: ["celery"]
-          args: ["-A", "app.tasks.celery_app", "worker", "--loglevel=INFO", "-P", "gevent", "-c", "4"] # Adjust concurrency (-c)
+          args: ["-A", "app.tasks.celery_app", "worker", "--loglevel=INFO", "-P", "gevent", "-c", "8"] # Aumentado a 8 workers gevent
           envFrom:
             - configMapRef:
                 name: ingest-service-config
             - secretRef:
                 name: ingest-service-secrets
+          # ***** RECURSOS AUMENTADOS Y PROBES ELIMINADOS *****
           resources:
             requests:
-              cpu: "500m" # Workers might need more CPU/Memory
-              memory: "1Gi"
+              cpu: "1000m" # 1 CPU request (los workers necesitan más)
+              memory: "2Gi" # 2 GiB request
             limits:
-              cpu: "2000m"
-              memory: "2Gi"
-          # Liveness/Readiness probes for workers are trickier.
-          # Basic check: ensure process is running. More advanced: Celery flower or custom health check endpoint.
-          # livenessProbe:
-          #   exec:
-          #     command:
-          #     - celery
-          #     - -A
-          #     - app.tasks.celery_app
-          #     - status
-          #   initialDelaySeconds: 60
-          #   periodSeconds: 60
-      # Add imagePullSecrets if using a private registry
-      # imagePullSecrets:
+              cpu: "4000m" # 4 CPU limit (permitir uso intensivo)
+              memory: "4Gi" # 4 GiB limit (aumentado significativamente)
+            # --- Ejemplo para solicitar GPU (DESCOMENTAR Y AJUSTAR SI LA CONFIGURACIÓN LO PERMITE) ---
+            # limits:
+            #   nvidia.com/gpu: 1 # Solicitar 1 GPU NVIDIA
+            # -----------------------------------------------------------------------------------
+          # Se eliminan livenessProbe y readinessProbe según solicitud
+
+      # imagePullSecrets: # Descomentar si usas registro privado
       # - name: your-registry-secret
