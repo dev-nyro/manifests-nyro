@@ -7,7 +7,7 @@ metadata:
   labels:
     app: ingest-worker
 spec:
-  replicas: 1 # Puedes aumentar a 2 o más si una sola CPU/GPU no es suficiente para la carga
+  replicas: 1 # Start with 1, scale if needed
   selector:
     matchLabels:
       app: ingest-worker
@@ -16,43 +16,43 @@ spec:
       labels:
         app: ingest-worker
     spec:
-      # --- Comentario GPU ---
-      # Para usar GPU (ej. tu RTX 4060), necesitas:
-      # 1. Nodos con GPU y drivers NVIDIA + NVIDIA Container Toolkit instalados.
-      # 2. El Dockerfile debe incluir PyTorch+CUDA y las dependencias necesarias.
-      # 3. Descomentar y ajustar la sección 'resources' abajo para solicitar GPUs.
-      # 4. Cambiar OpenAIDocumentEmbedder por un embedder local compatible con GPU en process_document.py.
-      # 5. Posiblemente añadir nodeSelector o tolerations si los nodos GPU están etiquetados/taintados.
-      # Ejemplo nodeSelector (si tus nodos GPU tienen esta etiqueta):
-      # nodeSelector:
-      #   gpu-type: "nvidia-rtx-4060" # O la etiqueta que uses
-      # ---------------------
+      # >>>>>>>>>>> CORRECTION: Add nodeSelector (adjust label as needed) <<<<<<<<<<<<<<
+      # Example nodeSelector (adjust the label key/value to match your GPU nodes)
+      nodeSelector:
+        # Example: Select nodes specifically labeled for GPU tasks
+        # nvidia.com/gpu.product: "NVIDIA-RTX-4060" # Adjust if using product label
+        gpu-enabled: "true" # Or use a generic label you apply to GPU nodes
+      # Example Tolerations (if GPU nodes have taints)
+      # tolerations:
+      # - key: "nvidia.com/gpu"
+      #   operator: "Exists"
+      #   effect: "NoSchedule"
+      # >>>>>>>>>>> END CORRECTION <<<<<<<<<<<<<<
       containers:
         - name: ingest-worker
-          # Asegúrate que la imagen es la correcta y está actualizada
-          image: ghcr.io/dev-nyro/ingest-service:develop-0964fe6 # Reemplaza con tu tag/digest más reciente si es necesario
-          imagePullPolicy: Always # O IfNotPresent
-          # ***** CONCURRENCIA AUMENTADA *****
+          # Ensure this image includes the new dependencies (fastembed-haystack, onnxruntime-gpu)
+          image: ghcr.io/dev-nyro/ingest-service:develop-XXXXXXX # <-- UPDATE with new image tag/digest after building
+          imagePullPolicy: Always
           command: ["celery"]
-          args: ["-A", "app.tasks.celery_app", "worker", "--loglevel=INFO", "-P", "gevent", "-c", "8"] # Aumentado a 8 workers gevent
+          # Keep concurrency as optimized previously, GPU handles parallelism internally
+          args: ["-A", "app.tasks.celery_app", "worker", "--loglevel=INFO", "-P", "gevent", "-c", "8"]
           envFrom:
             - configMapRef:
                 name: ingest-service-config
             - secretRef:
                 name: ingest-service-secrets
-          # ***** RECURSOS AUMENTADOS Y PROBES ELIMINADOS *****
           resources:
+            # Keep increased CPU/Memory requests/limits as GPU still needs CPU coordination
             requests:
-              cpu: "1000m" # 1 CPU request (los workers necesitan más)
-              memory: "2Gi" # 2 GiB request
+              cpu: "1000m"
+              memory: "2Gi"
             limits:
-              cpu: "4000m" # 4 CPU limit (permitir uso intensivo)
-              memory: "4Gi" # 4 GiB limit (aumentado significativamente)
-            # --- Ejemplo para solicitar GPU (DESCOMENTAR Y AJUSTAR SI LA CONFIGURACIÓN LO PERMITE) ---
-            # limits:
-            #   nvidia.com/gpu: 1 # Solicitar 1 GPU NVIDIA
-            # -----------------------------------------------------------------------------------
-          # Se eliminan livenessProbe y readinessProbe según solicitud
+              # >>>>>>>>>>> CORRECTION: Add GPU limit <<<<<<<<<<<<<<
+              nvidia.com/gpu: 1 # Request 1 GPU from the node
+              # >>>>>>>>>>> END CORRECTION <<<<<<<<<<<<<<
+              cpu: "4000m"
+              memory: "4Gi"
+          # Probes remain removed as per previous instructions
 
-      # imagePullSecrets: # Descomentar si usas registro privado
+      # imagePullSecrets: # Uncomment if needed
       # - name: your-registry-secret
