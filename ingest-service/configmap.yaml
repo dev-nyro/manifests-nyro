@@ -29,18 +29,14 @@ data:
   INGEST_MINIO_USE_SECURE: "false"
   # INGEST_MINIO_ACCESS_KEY / SECRET_KEY -> Secret
 
-  # --- CORREGIDO: Settings para FastEmbed en CPU ---
-  # Ya no se usa para embeddings de ingesta
-  # INGEST_OPENAI_EMBEDDING_MODEL: "text-embedding-3-small"
-  # INGEST_OPENAI_API_KEY -> Secret (Mantener solo si se usa en OTRO lugar)
-
   # FastEmbed Settings
-  INGEST_FASTEMBED_MODEL: "BAAI/bge-large-en-v1.5" # Modelo local a usar
-  INGEST_USE_GPU: "false"                        # Desactivar uso de GPU
-  # Dimensión correcta para BAAI/bge-large-en-v1.5
-  INGEST_EMBEDDING_DIMENSION: "1024"
+  INGEST_FASTEMBED_MODEL: "BAAI/bge-large-en-v1.5"
+  INGEST_USE_GPU: "false"
+  INGEST_EMBEDDING_DIMENSION: "1024" # Still needed by other parts potentially
 
-  # Splitter Settings (sin cambios)
-  INGEST_SPLITTER_CHUNK_SIZE: "500"
-  INGEST_SPLITTER_CHUNK_OVERLAP: "50"
-  INGEST_SPLITTER_SPLIT_BY: "word"
+  # Splitter Settings (Adjusted based on suggestion)
+  # <<< CORRECTION: Adjusted chunk size and overlap >>>
+  INGEST_SPLITTER_CHUNK_SIZE: "1000"
+  INGEST_SPLITTER_CHUNK_OVERLAP: "250"
+  # <<< END CORRECTION >>>
+  INGEST_SPLITTER_SPLIT_BY: "word" # Kept as 'word', change to 'sentence' if preferred
