@@ -15,26 +15,26 @@ spec:
     metadata:
       labels:
         app: ingest-worker
+      # annotations: # Opcional: reiniciar pods al cambiar config/secret
+      #   checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+      #   checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }} # Asumiendo que tienes un secret.yaml
     spec:
-      # >>>>>>>>>>> CORRECTION: Add nodeSelector (adjust label as needed) <<<<<<<<<<<<<<
-      # Example nodeSelector (adjust the label key/value to match your GPU nodes)
-      nodeSelector:
-        # Example: Select nodes specifically labeled for GPU tasks
-        # nvidia.com/gpu.product: "NVIDIA-RTX-4060" # Adjust if using product label
-        gpu-enabled: "true" # Or use a generic label you apply to GPU nodes
-      # Example Tolerations (if GPU nodes have taints)
+      # --- REMOVED GPU Specific sections ---
+      # nodeSelector:
+      #   gpu-enabled: "true"
       # tolerations:
       # - key: "nvidia.com/gpu"
       #   operator: "Exists"
       #   effect: "NoSchedule"
-      # >>>>>>>>>>> END CORRECTION <<<<<<<<<<<<<<
+      # --- END REMOVED GPU Specific sections ---
       containers:
         - name: ingest-worker
-          # Ensure this image includes the new dependencies (fastembed-haystack, onnxruntime-gpu)
-          image: ghcr.io/dev-nyro/ingest-service:develop-XXXXXXX # <-- UPDATE with new image tag/digest after building
+          # Ensure this image includes the CPU ONNX runtime and correct dependencies
+          # ACTUALIZA ESTA ETIQUETA con la nueva imagen construida después de los cambios
+          image: ghcr.io/dev-nyro/ingest-service:develop-XXXXXXX
           imagePullPolicy: Always
           command: ["celery"]
-          # Keep concurrency as optimized previously, GPU handles parallelism internally
+          # Args sin cambios, la concurrencia es para I/O con gevent, no CPU bound ahora
           args: ["-A", "app.tasks.celery_app", "worker", "--loglevel=INFO", "-P", "gevent", "-c", "8"]
           envFrom:
             - configMapRef:
@@ -42,17 +42,17 @@ spec:
             - secretRef:
                 name: ingest-service-secrets
           resources:
-            # Keep increased CPU/Memory requests/limits as GPU still needs CPU coordination
+            # Ajusta los recursos para CPU-bound tasks si es necesario
+            # FastEmbed puede consumir bastante CPU y RAM
             requests:
-              cpu: "1000m"
-              memory: "2Gi"
+              cpu: "1000m" # 1 CPU core request
+              memory: "2Gi" # 2 GiB RAM request
             limits:
-              # >>>>>>>>>>> CORRECTION: Add GPU limit <<<<<<<<<<<<<<
-              nvidia.com/gpu: 1 # Request 1 GPU from the node
-              # >>>>>>>>>>> END CORRECTION <<<<<<<<<<<<<<
-              cpu: "4000m"
-              memory: "4Gi"
-          # Probes remain removed as per previous instructions
+              # --- REMOVED GPU limit ---
+              # nvidia.com/gpu: 1
+              # --- END REMOVED GPU limit ---
+              cpu: "4000m" # Limit to 4 CPU cores
+              memory: "6Gi"  # Aumentar límite de RAM para FastEmbed
 
       # imagePullSecrets: # Uncomment if needed
       # - name: your-registry-secret
