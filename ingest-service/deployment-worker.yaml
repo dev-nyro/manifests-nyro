@@ -19,43 +19,39 @@ spec:
       #   checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
       #   checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }} # Assuming secret.yaml exists
     spec:
-      # --- REMOVED GPU Specific sections ---
+      # --- NO GPU Node Selector needed ---
       containers:
         - name: ingest-worker
-          # Ensure this image includes the CPU ONNX runtime and correct dependencies
-          # ACTUALIZA ESTA ETIQUETA con la nueva imagen construida después de los cambios
-          image: ghcr.io/dev-nyro/ingest-service:develop-f11519d
+          # Ensure this image includes CPU ONNX runtime and correct dependencies
+          # ACTUALIZA ESTA ETIQUETA con la imagen construida DESPUÉS de aplicar los cambios de código
+          image: ghcr.io/dev-nyro/ingest-service:develop-f11519d # <-- ACTUALIZAR TAG SI SE RECONSTRUYE
           imagePullPolicy: Always
           command: ["celery"]
-          # --- MODIFIED: Changed from gevent to prefork and adjusted concurrency ---
           args:
             [
               "-A",
-              "app.tasks.celery_app", # Points to the Celery app instance
+              "app.tasks.celery_app", # Points to the Celery app instance in celery_app.py
               "worker",
-              "--loglevel=INFO",
+              "--loglevel=INFO", # Set Celery log level
               "-P", # Concurrency Pool Type
-              "prefork", # Use processes instead of green threads
-              "-c", # Concurrency (Number of child processes)
-              "4", # Adjust based on available CPU resources (e.g., match CPU limits/requests)
+              "prefork", # Use processes for better CPU-bound task handling (like embeddings)
+              "-c", # Concurrency (Number of child worker processes)
+              "4", # Adjust based on available CPU resources (e.g., match CPU limits/requests if possible)
             ]
-          # --- END MODIFICATION ---
           envFrom:
             - configMapRef:
                 name: ingest-service-config
             - secretRef:
                 name: ingest-service-secrets
           resources:
-            # Adjusted resources considering prefork might use more memory per process
+            # Adjusted resources for CPU-only prefork worker
             requests:
-              cpu: "1000m" # Request 1 CPU core
-              # Increased memory request slightly for multiple processes
-              memory: "3Gi" # Request 3 GiB RAM
+              cpu: "1000m" # Request 1 CPU core initially
+              memory: "3Gi" # Request 3 GiB RAM (Embeddings can be memory intensive)
             limits:
-              # --- REMOVED GPU limit ---
+              # --- REMOVED nvidia.com/gpu limit ---
               cpu: "4000m" # Limit to 4 CPU cores (Matches concurrency -c 4)
-              # Increased memory limit for safety with multiple processes + FastEmbed
-              memory: "8Gi" # Limit to 8 GiB RAM
+              memory: "8Gi" # Limit to 8 GiB RAM (Allow headroom for peak usage)
 
       # imagePullSecrets: # Uncomment if needed for private registry
       # - name: your-registry-secret
