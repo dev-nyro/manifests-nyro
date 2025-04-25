@@ -22,8 +22,9 @@ spec:
       # --- REMOVED GPU Specific sections ---
       containers:
         - name: ingest-worker
-          # LLM_FLAG: IMAGE_TAG_UPDATE_REQUIRED - Update this tag after building the new image
-          image: ghcr.io/dev-nyro/ingest-service:refactor-prefork-v1 # Placeholder for the new image tag
+          # Ensure this image includes the CPU ONNX runtime and correct dependencies
+          # ACTUALIZA ESTA ETIQUETA con la nueva imagen construida después de los cambios
+          image: ghcr.io/dev-nyro/ingest-service:develop-f11519d
           imagePullPolicy: Always
           command: ["celery"]
           # --- MODIFIED: Changed from gevent to prefork and adjusted concurrency ---
