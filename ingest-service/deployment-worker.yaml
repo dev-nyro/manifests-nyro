@@ -7,7 +7,7 @@ metadata:
   labels:
     app: ingest-worker
 spec:
-  replicas: 1 # Start with 1, scale if needed
+  replicas: 1 # Start with 1, scale if needed (consider HPA later)
   selector:
     matchLabels:
       app: ingest-worker
@@ -15,44 +15,46 @@ spec:
     metadata:
       labels:
         app: ingest-worker
-      # annotations: # Opcional: reiniciar pods al cambiar config/secret
+      # annotations: # Optional: restart pods on config/secret change
       #   checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
-      #   checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }} # Asumiendo que tienes un secret.yaml
+      #   checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }} # Assuming secret.yaml exists
     spec:
       # --- REMOVED GPU Specific sections ---
-      # nodeSelector:
-      #   gpu-enabled: "true"
-      # tolerations:
-      # - key: "nvidia.com/gpu"
-      #   operator: "Exists"
-      #   effect: "NoSchedule"
-      # --- END REMOVED GPU Specific sections ---
       containers:
         - name: ingest-worker
-          # Ensure this image includes the CPU ONNX runtime and correct dependencies
-          # ACTUALIZA ESTA ETIQUETA con la nueva imagen construida después de los cambios
-          image: ghcr.io/dev-nyro/ingest-service:develop-b8e6778
+          # LLM_FLAG: IMAGE_TAG_UPDATE_REQUIRED - Update this tag after building the new image
+          image: ghcr.io/dev-nyro/ingest-service:refactor-prefork-v1 # Placeholder for the new image tag
           imagePullPolicy: Always
           command: ["celery"]
-          # Args sin cambios, la concurrencia es para I/O con gevent, no CPU bound ahora
-          args: ["-A", "app.tasks.celery_app", "worker", "--loglevel=INFO", "-P", "gevent", "-c", "8"]
+          # --- MODIFIED: Changed from gevent to prefork and adjusted concurrency ---
+          args:
+            [
+              "-A",
+              "app.tasks.celery_app", # Points to the Celery app instance
+              "worker",
+              "--loglevel=INFO",
+              "-P", # Concurrency Pool Type
+              "prefork", # Use processes instead of green threads
+              "-c", # Concurrency (Number of child processes)
+              "4", # Adjust based on available CPU resources (e.g., match CPU limits/requests)
+            ]
+          # --- END MODIFICATION ---
           envFrom:
             - configMapRef:
                 name: ingest-service-config
             - secretRef:
                 name: ingest-service-secrets
           resources:
-            # Ajusta los recursos para CPU-bound tasks si es necesario
-            # FastEmbed puede consumir bastante CPU y RAM
+            # Adjusted resources considering prefork might use more memory per process
             requests:
-              cpu: "1000m" # 1 CPU core request
-              memory: "2Gi" # 2 GiB RAM request
+              cpu: "1000m" # Request 1 CPU core
+              # Increased memory request slightly for multiple processes
+              memory: "3Gi" # Request 3 GiB RAM
             limits:
               # --- REMOVED GPU limit ---
-              # nvidia.com/gpu: 1
-              # --- END REMOVED GPU limit ---
-              cpu: "4000m" # Limit to 4 CPU cores
-              memory: "6Gi"  # Aumentar límite de RAM para FastEmbed
+              cpu: "4000m" # Limit to 4 CPU cores (Matches concurrency -c 4)
+              # Increased memory limit for safety with multiple processes + FastEmbed
+              memory: "8Gi" # Limit to 8 GiB RAM
 
-      # imagePullSecrets: # Uncomment if needed
+      # imagePullSecrets: # Uncomment if needed for private registry
       # - name: your-registry-secret
