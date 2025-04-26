@@ -20,10 +20,12 @@ data:
   # INGEST_POSTGRES_PASSWORD -> Secret
 
   # Milvus
-  INGEST_MILVUS_URI: "http://milvus-milvus.default.svc.cluster.local:19530"
-  INGEST_MILVUS_COLLECTION_NAME: "document_chunks_haystack"
-  # --- ADDED: Milvus gRPC Timeout ---
-  INGEST_MILVUS_GRPC_TIMEOUT: "10" # Timeout in seconds (Increased slightly from 5 for potential cold starts)
+  # --- CORRECTION: Update Milvus URI to point to the new 'milvus-standalone' service within the 'nyro-develop' namespace ---
+  INGEST_MILVUS_URI: "http://milvus-standalone.nyro-develop.svc.cluster.local:19530"
+  # ------------------------------------------------------------------------------------------------------------------------
+  INGEST_MILVUS_COLLECTION_NAME: "document_chunks_haystack" # Puedes mantener este nombre o cambiarlo si prefieres
+  # --- Milvus gRPC Timeout ---
+  INGEST_MILVUS_GRPC_TIMEOUT: "10" # Timeout in seconds
 
   # MinIO
   INGEST_MINIO_ENDPOINT: "minio-service.nyro-develop.svc.cluster.local:9000"
