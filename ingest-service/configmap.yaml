@@ -36,7 +36,7 @@ data:
   # FastEmbed Settings
   INGEST_FASTEMBED_MODEL: "BAAI/bge-large-en-v1.5" # Matches dimension 1024
   INGEST_USE_GPU: "false"
-  INGEST_EMBEDDING_DIMENSION: "1024" # Matches model bge-large-en-v1.5
+  INGEST_EMBEDDING_DIMENSION: "384" # Matches model bge-large-en-v1.5
 
   # Splitter Settings
   INGEST_SPLITTER_CHUNK_SIZE: "1000"
