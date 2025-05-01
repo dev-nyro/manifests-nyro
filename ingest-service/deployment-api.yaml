@@ -19,7 +19,7 @@ spec:
       containers:
         - name: ingest-api
           # Asegúrate que la imagen es la correcta y está actualizada
-          image: ghcr.io/dev-nyro/ingest-service:develop-dd7d3a2
+          image: ghcr.io/dev-nyro/ingest-service:develop-11a9721
           imagePullPolicy: Always # O IfNotPresent
           ports:
             - name: http
