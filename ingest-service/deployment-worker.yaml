@@ -1,4 +1,3 @@
-# ingest-service/deployment-worker.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -7,7 +6,7 @@ metadata:
   labels:
     app: ingest-worker
 spec:
-  replicas: 1 # Start with 1, scale if needed (consider HPA later)
+  replicas: 2 # Start with 1, scale if needed (consider HPA later)
   selector:
     matchLabels:
       app: ingest-worker
@@ -19,12 +18,19 @@ spec:
       #   checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
       #   checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }} # Assuming secret.yaml exists
     spec:
-      # --- NO GPU Node Selector needed ---
+      # --- GCS Authentication: IMPORTANT! ---
+      # Configure access to GCS. Recommended: Use Workload Identity by specifying a
+      # Kubernetes Service Account (KSA) linked to a Google Service Account (GSA)
+      # with permissions on the GCS bucket (roles/storage.objectAdmin).
+      # Alternatively, mount a GSA key file via a secret and set the
+      # GOOGLE_APPLICATION_CREDENTIALS environment variable.
+      # serviceAccountName: your-ksa-linked-to-gsa # Example for Workload Identity
+      # ---------------------------------------
       containers:
         - name: ingest-worker
-          # Ensure this image includes CPU ONNX runtime and correct dependencies
-          # ACTUALIZA ESTA ETIQUETA con la imagen construida DESPUÉS de aplicar los cambios de código
-          image: ghcr.io/dev-nyro/ingest-service:develop-23cb93c
+          # --- IMPORTANT: Update image tag after building with GCS changes ---
+          image: ghcr.io/dev-nyro/ingest-service:latest # Replace 'latest' with the actual new tag
+          # -----------------------------------------------------------------
           imagePullPolicy: Always
           command: ["celery"]
           args:
@@ -32,7 +38,7 @@ spec:
               "-A",
               "app.tasks.celery_app", # Points to the Celery app instance in celery_app.py
               "worker",
-              "--loglevel=INFO", # Set Celery log level
+              "--loglevel=INFO", # Set Celery log level (matches configmap)
               "-P", # Concurrency Pool Type
               "prefork", # Use processes for better CPU-bound task handling (like embeddings)
               "-c", # Concurrency (Number of child worker processes)
@@ -43,6 +49,15 @@ spec:
                 name: ingest-service-config
             - secretRef:
                 name: ingest-service-secrets
+          # --- GCS Authentication via Environment Variable (Alternative to Workload Identity) ---
+          # env:
+          #   - name: GOOGLE_APPLICATION_CREDENTIALS
+          #     value: "/path/to/mounted/gcp-key.json" # Requires mounting the key file via a secret volume
+          # volumeMounts:
+          #   - name: gcp-key-volume
+          #     mountPath: "/path/to/mounted/"
+          #     readOnly: true
+          # -----------------------------------------------------------------------------------
           resources:
             # Adjusted resources for CPU-only prefork worker
             requests:
@@ -52,6 +67,12 @@ spec:
               # --- REMOVED nvidia.com/gpu limit ---
               cpu: "4000m" # Limit to 4 CPU cores (Matches concurrency -c 4)
               memory: "8Gi" # Limit to 8 GiB RAM (Allow headroom for peak usage)
+      # --- GCS Authentication Volume (Alternative to Workload Identity) ---
+      # volumes:
+      #   - name: gcp-key-volume
+      #     secret:
+      #       secretName: gcs-worker-sa-key # Name of the k8s secret containing the gcp-key.json file
+      # -------------------------------------------------------------------
 
       # imagePullSecrets: # Uncomment if needed for private registry
       # - name: your-registry-secret

@@ -1,4 +1,3 @@
-# ingest-service/deployment-api.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -18,8 +17,9 @@ spec:
     spec:
       containers:
         - name: ingest-api
-          # Asegúrate que la imagen es la correcta y está actualizada
-          image: ghcr.io/dev-nyro/ingest-service:develop-23cb93c
+          # --- IMPORTANT: Update image tag after building with GCS changes ---
+          image: ghcr.io/dev-nyro/ingest-service:latest # Replace 'latest' with the actual new tag
+          # -----------------------------------------------------------------
           imagePullPolicy: Always # O IfNotPresent
           ports:
             - name: http
@@ -39,14 +39,19 @@ spec:
                 name: ingest-service-config
             - secretRef:
                 name: ingest-service-secrets
-          # ***** RECURSOS AUMENTADOS Y PROBES ELIMINADOS *****
+          # ***** Recursos - Mantener como estaban (sin cambios específicos para GCS) *****
           resources:
             requests:
-              cpu: "250m"  # Un poco más de request base
+              cpu: "250m"
               memory: "512Mi"
             limits:
-              cpu: "1500m" # Permitir picos de CPU
-              memory: "2Gi"  # Límite de RAM aumentado a 2 GiB
-          # Se eliminan livenessProbe y readinessProbe según solicitud
+              cpu: "1500m"
+              memory: "2Gi"
+          # Probes eliminados según solicitud previa
+      # --- GCS Authentication: Not directly configured here ---
+      # Assumes Workload Identity is configured for the service account running this pod, OR
+      # GOOGLE_APPLICATION_CREDENTIALS env var is set via secrets/volumeMounts if using key files.
+      # serviceAccountName: your-ksa-with-workload-identity # Example if using WI
+
       # imagePullSecrets: # Descomentar si usas registro privado
       # - name: your-registry-secret
