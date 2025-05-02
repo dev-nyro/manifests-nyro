@@ -28,9 +28,9 @@ spec:
       # ---------------------------------------
       containers:
         - name: ingest-worker
-          # --- IMPORTANT: Update image tag after building with GCS changes ---
-          image: ghcr.io/dev-nyro/ingest-service:latest # Replace 'latest' with the actual new tag
-          # -----------------------------------------------------------------
+          # Ensure this image includes CPU ONNX runtime and correct dependencies
+          # ACTUALIZA ESTA ETIQUETA con la imagen construida DESPUÉS de aplicar los cambios de código
+          image: ghcr.io/dev-nyro/ingest-service:develop-8bfdc44
           imagePullPolicy: Always
           command: ["celery"]
           args:

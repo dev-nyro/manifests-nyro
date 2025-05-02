@@ -17,9 +17,8 @@ spec:
     spec:
       containers:
         - name: ingest-api
-          # --- IMPORTANT: Update image tag after building with GCS changes ---
-          image: ghcr.io/dev-nyro/ingest-service:latest # Replace 'latest' with the actual new tag
-          # -----------------------------------------------------------------
+          # Asegúrate que la imagen es la correcta y está actualizada
+          image: ghcr.io/dev-nyro/ingest-service:develop-8bfdc44
           imagePullPolicy: Always # O IfNotPresent
           ports:
             - name: http
