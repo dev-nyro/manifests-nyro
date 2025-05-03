@@ -1,36 +1,40 @@
-# k8s/query-service-configmap.yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:
+  # --- Asume un nombre distinto para el query-service ---
   name: query-service-config
   namespace: nyro-develop
 data:
+  # General
   QUERY_LOG_LEVEL: "INFO"
 
-  # PostgreSQL Interno
+  # PostgreSQL (Mismos datos que ingest)
   QUERY_POSTGRES_SERVER: "postgresql-service.nyro-develop.svc.cluster.local"
   QUERY_POSTGRES_PORT: "5432"
   QUERY_POSTGRES_USER: "postgres"
   QUERY_POSTGRES_DB: "atenex"
+  # QUERY_POSTGRES_PASSWORD -> Secret
 
-  # --- Milvus ---
-  # Apunta al servicio en namespace 'nyro-develop' para coincidir con ingest-service
+  # Milvus (Mismos datos que ingest, pero con campos explícitos)
   QUERY_MILVUS_URI: "http://milvus-standalone.nyro-develop.svc.cluster.local:19530"
-  QUERY_MILVUS_COLLECTION_NAME: "document_chunks_haystack" # Nombre de tu colección
-  QUERY_MILVUS_COMPANY_ID_FIELD: "company_id" # Campo para filtrar por tenant
+  QUERY_MILVUS_COLLECTION_NAME: "document_chunks_haystack" # Debe coincidir con ingest
+  # --- Campos explícitos para Milvus ---
+  QUERY_MILVUS_EMBEDDING_FIELD: "embedding" # Coincide con ingest
+  QUERY_MILVUS_CONTENT_FIELD: "content"     # Coincide con ingest
+  QUERY_MILVUS_COMPANY_ID_FIELD: "company_id" # Coincide con ingest
+  # ---------------------------------------
 
-  # OpenAI Embedding
-  QUERY_OPENAI_EMBEDDING_MODEL: "text-embedding-3-small"
-  QUERY_EMBEDDING_DIMENSION: "1536" # Verificado en config.py
+  # Embedding Settings (FastEmbed)
+  # --- CORRECTION: Alineado con ingest-service ---
+  QUERY_FASTEMBED_MODEL_NAME: "sentence-transformers/all-MiniLM-L6-v2"
+  QUERY_EMBEDDING_DIMENSION: "384" # Dimensión correcta para MiniLM
+  QUERY_FASTEMBED_QUERY_PREFIX: "query: "
+  # -------------------------------------------
 
-  # Gemini LLM
+  # Gemini LLM Settings
   QUERY_GEMINI_MODEL_NAME: "gemini-1.5-flash-latest"
+  # QUERY_GEMINI_API_KEY -> Secret
 
-  # RAG Pipeline
+  # RAG Settings
   QUERY_RETRIEVER_TOP_K: "5"
-  # QUERY_RAG_PROMPT_TEMPLATE: "" # Usa default
-
-  # Service Client Config
-  QUERY_HTTP_CLIENT_TIMEOUT: "60"
-  QUERY_HTTP_CLIENT_MAX_RETRIES: "2"
-  QUERY_HTTP_CLIENT_BACKOFF_FACTOR: "1.0"
+  # Los templates largos se dejan en el código por defecto, se pueden externalizar si es necesario.
