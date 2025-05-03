@@ -14,8 +14,8 @@ data:
   QUERY_POSTGRES_DB: "atenex"
 
   # --- Milvus ---
-  # *** CORREGIDO: Apunta al servicio en namespace 'default' ***
-  QUERY_MILVUS_URI: "http://milvus-milvus.default.svc.cluster.local:19530"
+  # Apunta al servicio en namespace 'nyro-develop' para coincidir con ingest-service
+  QUERY_MILVUS_URI: "http://milvus-standalone.nyro-develop.svc.cluster.local:19530"
   QUERY_MILVUS_COLLECTION_NAME: "document_chunks_haystack" # Nombre de tu colección
   QUERY_MILVUS_COMPANY_ID_FIELD: "company_id" # Campo para filtrar por tenant
 
