@@ -30,7 +30,7 @@ spec:
         - name: ingest-worker
           # Ensure this image includes CPU ONNX runtime and correct dependencies
           # ACTUALIZA ESTA ETIQUETA con la imagen construida DESPUÉS de aplicar los cambios de código
-          image: ghcr.io/dev-nyro/ingest-service:develop-8bfdc44
+          image: ghcr.io/dev-nyro/ingest-service:develop-f5d2655
           imagePullPolicy: Always
           command: ["celery"]
           args:
