@@ -38,6 +38,13 @@ spec:
                 name: ingest-service-config
             - secretRef:
                 name: ingest-service-secrets
+          env:
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: "/etc/gcp-secrets/key.json" # Ruta donde se montará la clave
+          volumeMounts:
+            - name: gcp-key-volume
+              mountPath: "/etc/gcp-secrets" # Directorio donde montar
+              readOnly: true
           # ***** Recursos - Mantener como estaban (sin cambios específicos para GCS) *****
           resources:
             requests:
@@ -54,3 +61,10 @@ spec:
 
       # imagePullSecrets: # Descomentar si usas registro privado
       # - name: your-registry-secret
+      volumes:
+        - name: gcp-key-volume
+          secret:
+            secretName: gcs-worker-sa-key # Nombre del secreto creado
+            items:
+              - key: key.json # Nombre del archivo dentro del secreto
+                path: key.json # Nombre que tendrá el archivo en mountPath
