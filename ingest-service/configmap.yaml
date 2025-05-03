@@ -36,8 +36,8 @@ data:
   # --- CORRECTION: Adjusted dimension to match BAAI/bge-large model ---
   # --- Verify this is the intended model and dimension. ---
   # --- If using all-MiniLM-L6-v2, change MODEL to that and DIMENSION to 384 ---
-  INGEST_EMBEDDING_MODEL_ID: "BAAI/bge-large-en-v1.5"
-  INGEST_EMBEDDING_DIMENSION: "1024" # Dimension for bge-large-en-v1.5
+  INGEST_EMBEDDING_MODEL_ID: "sentence-transformers/all-MiniLM-L6-v2"
+  INGEST_EMBEDDING_DIMENSION: "384" # Dimension for MiniLM-L6-v2
   # --------------------------------------------------------------------
   # INGEST_FASTEMBED_MODEL: "BAAI/bge-large-en-v1.5" # Replaced by EMBEDDING_MODEL_ID
   INGEST_USE_GPU: "false" # Kept, but likely unused for SentenceTransformers CPU
