@@ -16,10 +16,10 @@ spec:
         app: query-service
     spec:
       containers:
-        - name: query-service
-          # LLM_REFACTOR_FINAL: Reemplazar con el tag de tu imagen final
-          image: ghcr.io/your-org/query-service:v0.3.0 # ACTUALIZAR IMAGEN
-          imagePullPolicy: Always # O IfNotPresent
+        - name: query-service # Nombre del contenedor
+          # La imagen será actualizada por el pipeline CI/CD (este es un placeholder)
+          image: ghcr.io/dev-nyro/query-service:develop-55e113e
+          imagePullPolicy: Always # O IfNotPresent si prefieres usar caché local en dev
           ports:
             - name: http
               containerPort: 8001 # Puerto interno definido en Dockerfile/Config
