@@ -1,3 +1,4 @@
+#ingest-service/configmap.yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -5,7 +6,7 @@ metadata:
   namespace: nyro-develop
 data:
   # General
-  INGEST_LOG_LEVEL: "INFO" # O "DEBUG" para más detalle
+  INGEST_LOG_LEVEL: "INFO"
 
   # Celery
   INGEST_CELERY_BROKER_URL: "redis://redis-service-master.nyro-develop.svc.cluster.local:6379/0"
@@ -20,29 +21,20 @@ data:
 
   # Milvus
   INGEST_MILVUS_URI: "http://milvus-standalone.nyro-develop.svc.cluster.local:19530"
-  INGEST_MILVUS_COLLECTION_NAME: "document_chunks_haystack" # Nombre de la colección (ajusta si es necesario)
-  INGEST_MILVUS_GRPC_TIMEOUT: "10" # Timeout en segundos
+  INGEST_MILVUS_COLLECTION_NAME: "document_chunks_minilm" # Asegúrate que coincide con tu intención
+  INGEST_MILVUS_GRPC_TIMEOUT: "10"
 
-  # --- MinIO Variables REMOVED ---
-  # INGEST_MINIO_ENDPOINT: "minio-service.nyro-develop.svc.cluster.local:9000"
-  # INGEST_MINIO_BUCKET_NAME: "ingested-documents"
-  # INGEST_MINIO_USE_SECURE: "false"
-  # INGEST_MINIO_ACCESS_KEY / SECRET_KEY -> Secret
-
-  # --- Google Cloud Storage Added ---
-  INGEST_GCS_BUCKET_NAME: "atenex" # Nombre del bucket en GCS
+  # Google Cloud Storage
+  INGEST_GCS_BUCKET_NAME: "atenex"
 
   # Embedding Settings (using SentenceTransformers)
-  # --- CORRECTION: Adjusted dimension to match BAAI/bge-large model ---
-  # --- Verify this is the intended model and dimension. ---
-  # --- If using all-MiniLM-L6-v2, change MODEL to that and DIMENSION to 384 ---
   INGEST_EMBEDDING_MODEL_ID: "sentence-transformers/all-MiniLM-L6-v2"
   INGEST_EMBEDDING_DIMENSION: "384" # Dimension for MiniLM-L6-v2
-  # --------------------------------------------------------------------
-  # INGEST_FASTEMBED_MODEL: "BAAI/bge-large-en-v1.5" # Replaced by EMBEDDING_MODEL_ID
-  INGEST_USE_GPU: "false" # Kept, but likely unused for SentenceTransformers CPU
+  # INGEST_USE_GPU: "false" # Kept for reference but default SentenceTransformer usage is CPU
+
+  # Tokenizer Settings
+  INGEST_TIKTOKEN_ENCODING_NAME: "cl100k_base" # Default encoding
 
   # Splitter Settings
   INGEST_SPLITTER_CHUNK_SIZE: "1000"
   INGEST_SPLITTER_CHUNK_OVERLAP: "250"
-  # INGEST_SPLITTER_SPLIT_BY: "word" # Removed - Not used by current splitter
