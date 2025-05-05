@@ -2,11 +2,11 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: query-service-deployment
-  namespace: nyro-develop # Asegúrate que el namespace sea el correcto
+  namespace: nyro-develop # Asegurar namespace correcto
   labels:
     app: query-service
 spec:
-  replicas: 1
+  replicas: 1 # Empezar con 1, escalar según necesidad
   selector:
     matchLabels:
       app: query-service
@@ -16,57 +16,40 @@ spec:
         app: query-service
     spec:
       containers:
-        - name: query-service # Nombre del contenedor
-          # La imagen será actualizada por el pipeline CI/CD (este es un placeholder)
-          image: ghcr.io/dev-nyro/query-service:develop-4ab1fb2
-          imagePullPolicy: Always # O IfNotPresent si prefieres usar caché local en dev
+        - name: query-service
+          # LLM_REFACTOR_FINAL: Reemplazar con el tag de tu imagen final
+          image: ghcr.io/your-org/query-service:v0.3.0 # ACTUALIZAR IMAGEN
+          imagePullPolicy: Always # O IfNotPresent
           ports:
             - name: http
-              containerPort: 8001
+              containerPort: 8001 # Puerto interno definido en Dockerfile/Config
               protocol: TCP
-          command: ["gunicorn"]
+          # Comando Gunicorn ajustado
+          command: ["gunicorn", "-k", "uvicorn.workers.UvicornWorker"]
           args: [
-              "-k", "uvicorn.workers.UvicornWorker",
-              # Mantener número reducido de workers puede ayudar con el uso de memoria/cpu inicial
-              "-w", "2",
-              "-b", "0.0.0.0:8001",
-              "-t", "120", # Timeout para workers
+              "-w", "2", # Número de workers (ajustar según CPU/Memoria)
+              "-b", "0.0.0.0:8001", # Vincular al puerto interno
+              "-t", "120", # Worker timeout
+              # "--log-level", "$(QUERY_LOG_LEVEL)", # Heredar nivel de log (opcional)
               "app.main:app"
             ]
           envFrom:
             - configMapRef:
-                name: query-service-config # Asegúrate que el nombre sea correcto
+                name: query-service-config
             - secretRef:
-                name: query-service-secrets # Asegúrate que el nombre sea correcto
-          resources: # Mantener los recursos definidos
+                name: query-service-secrets # Asegurar que el Secret existe
+          resources: # Ajustar según pruebas de carga
             requests:
-              cpu: "500m"
-              memory: "1Gi"
+              cpu: "750m" # Aumentado ligeramente por modelos ML
+              memory: "1.5Gi"
             limits:
-              cpu: "1500m"
-              memory: "2Gi"
-          # --- LIVENESS PROBE REMOVED as requested ---
-          # livenessProbe:
-          #   httpGet:
-          #     path: /
-          #     port: http
-          #   initialDelaySeconds: 60 # Aumentado
-          #   periodSeconds: 30
-          #   timeoutSeconds: 15 # Aumentado
-          #   failureThreshold: 3
-          #   successThreshold: 1
+              cpu: "2000m" # 2 vCPU
+              memory: "3Gi" # Más memoria para BM25/Reranker
 
-          # --- READINESS PROBE REMOVED as requested ---
-          # readinessProbe:
-          #   httpGet:
-          #     path: /
-          #     port: http
-          #   initialDelaySeconds: 40 # Aumentado
-          #   periodSeconds: 20
-          #   timeoutSeconds: 15 # Aumentado
-          #   failureThreshold: 5 # Aumentado
-          #   successThreshold: 1
+          # --- Sondas eliminadas según solicitud ---
+          # livenessProbe: ...
+          # readinessProbe: ...
 
-      # Si usas un registro privado como GHCR, necesitarás esto:
+      # Descomentar si se usa registro privado
       # imagePullSecrets:
-      # - name: ghcr-secret # Nombre del secret para acceder a GHCR
+      # - name: your-registry-secret
