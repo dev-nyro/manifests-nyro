@@ -16,7 +16,7 @@ data:
 
   # Milvus
   QUERY_MILVUS_URI: "http://milvus-standalone.nyro-develop.svc.cluster.local:19530"
-  QUERY_MILVUS_COLLECTION_NAME: "document_chunks_haystack" # Asegurar consistencia con Ingest
+  QUERY_MILVUS_COLLECTION_NAME: "document_chunks_minilm"
   QUERY_MILVUS_EMBEDDING_FIELD: "embedding"
   QUERY_MILVUS_CONTENT_FIELD: "content"
   QUERY_MILVUS_COMPANY_ID_FIELD: "company_id"
