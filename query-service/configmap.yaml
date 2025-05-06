@@ -22,7 +22,7 @@ data:
   QUERY_MILVUS_COMPANY_ID_FIELD: "company_id"
   QUERY_MILVUS_DOCUMENT_ID_FIELD: "document_id"
   QUERY_MILVUS_FILENAME_FIELD: "file_name"
-  QUERY_MILVUS_GRPC_TIMEOUT: "15" # Aumentado ligeramente por si acaso
+  QUERY_MILVUS_GRPC_TIMEOUT: "15"
 
   # Embedding Settings (FastEmbed)
   QUERY_FASTEMBED_MODEL_NAME: "sentence-transformers/all-MiniLM-L6-v2"
