@@ -38,13 +38,13 @@ spec:
                 name: query-service-config
             - secretRef:
                 name: query-service-secrets # Asegurar que el Secret existe
-          resources: # Ajustar según pruebas de carga
+          resources: # Aumentado para mejorar velocidad de arranque y performance
             requests:
-              cpu: "750m" # Aumentado ligeramente por modelos ML
-              memory: "1.5Gi"
+              cpu: "1500m" # 1.5 vCPU
+              memory: "3Gi"
             limits:
-              cpu: "2000m" # 2 vCPU
-              memory: "3Gi" # Más memoria para BM25/Reranker
+              cpu: "3000m" # 3 vCPU
+              memory: "6Gi"
 
           # --- Sondas eliminadas según solicitud ---
           # livenessProbe: ...
