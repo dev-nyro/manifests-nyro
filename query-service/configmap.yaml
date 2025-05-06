@@ -1,3 +1,4 @@
+# Ejemplo: query-service/kubernetes/configmap.yaml (o como se llame tu archivo)
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -7,14 +8,14 @@ data:
   # General
   QUERY_LOG_LEVEL: "INFO" # O "DEBUG" para más detalle
 
-  # PostgreSQL
+  # PostgreSQL (Sin cambios)
   QUERY_POSTGRES_SERVER: "postgresql-service.nyro-develop.svc.cluster.local"
   QUERY_POSTGRES_PORT: "5432"
   QUERY_POSTGRES_USER: "postgres"
   QUERY_POSTGRES_DB: "atenex"
   # QUERY_POSTGRES_PASSWORD -> Proveniente de Secret
 
-  # Milvus
+  # Milvus (Sin cambios)
   QUERY_MILVUS_URI: "http://milvus-standalone.nyro-develop.svc.cluster.local:19530"
   QUERY_MILVUS_COLLECTION_NAME: "document_chunks_minilm"
   QUERY_MILVUS_EMBEDDING_FIELD: "embedding"
@@ -23,32 +24,33 @@ data:
   QUERY_MILVUS_DOCUMENT_ID_FIELD: "document_id"
   QUERY_MILVUS_FILENAME_FIELD: "file_name"
   QUERY_MILVUS_GRPC_TIMEOUT: "15"
+  # QUERY_MILVUS_METADATA_FIELDS: (...) # Se usarán los defaults de config.py si no se especifica
 
-  # Embedding Settings (FastEmbed)
+  # Embedding Settings (FastEmbed - Sin cambios)
   QUERY_FASTEMBED_MODEL_NAME: "sentence-transformers/all-MiniLM-L6-v2"
   QUERY_EMBEDDING_DIMENSION: "384"
   QUERY_FASTEMBED_QUERY_PREFIX: "query: "
 
   # Gemini LLM Settings
-  QUERY_GEMINI_MODEL_NAME: "gemini-1.5-flash-latest"
+  # --- LLM_CORRECTION: Set correct model name ---
+  QUERY_GEMINI_MODEL_NAME: "gemini-2.5-flash-latest"
   # QUERY_GEMINI_API_KEY -> Proveniente de Secret
 
   # RAG Pipeline Control & Parameters
-  QUERY_RETRIEVER_TOP_K: "10" # K inicial para cada retriever (denso/sparse)
+  # --- LLM_CORRECTION: Increase K and set new context limit ---
+  QUERY_RETRIEVER_TOP_K: "100" # K inicial para cada retriever (aumentado)
+  QUERY_MAX_CONTEXT_CHUNKS: "75" # Máximo de chunks para el prompt del LLM (aumentado)
+  QUERY_MAX_PROMPT_TOKENS: "500000" # Límite de tokens (opcional, informativo)
+
   QUERY_BM25_ENABLED: "true" # Habilitar BM25 por defecto
   QUERY_RERANKER_ENABLED: "true" # Habilitar Reranker por defecto
-  QUERY_RERANKER_MODEL_NAME: "BAAI/bge-reranker-base" # Modelo reranker
-  QUERY_DIVERSITY_FILTER_ENABLED: "false" # Mantener deshabilitado por defecto (usa Stub)
-  QUERY_DIVERSITY_K_FINAL: "7" # K final después de diversidad/reranking
+  QUERY_RERANKER_MODEL_NAME: "BAAI/bge-reranker-base" # Modelo reranker (sin cambios)
+  QUERY_DIVERSITY_FILTER_ENABLED: "false" # MANTENER DESHABILITADO para maximizar contexto fácilmente
+  # QUERY_DIVERSITY_LAMBDA: "0.5" # Irrelevante si DIVERSITY_FILTER_ENABLED es false
   # QUERY_HYBRID_FUSION_ALPHA: "0.5" # (Actualmente no usado por RRF)
 
-  # Prompt Templates (Opcional - descomentar y ajustar si se quieren sobrescribir los defaults)
+  # Prompt Templates (Sin cambios aquí, usan los defaults de config.py)
   # QUERY_RAG_PROMPT_TEMPLATE: |
-  #   Usa SOLO los siguientes documentos para responder:
-  #   {% for doc in documents %}
-  #   {{ doc.content }}
-  #   {% endfor %}
-  #   Pregunta: {{ query }}
-  #   Respuesta:
+  #   ...
   # QUERY_GENERAL_PROMPT_TEMPLATE: |
-  #   Eres Atenex, asistente AI. Responde amablemente: {{ query }}
+  #   ...
