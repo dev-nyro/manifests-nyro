@@ -20,7 +20,7 @@ data:
   # INGEST_POSTGRES_PASSWORD -> Secret
 
   # Milvus
-  INGEST_MILVUS_URI: "http://milvus-standalone.nyro-develop.svc.cluster.local:19530"
+  INGEST_MILVUS_URI: "http://milvus.nyro-develop.svc.cluster.local:19530"
   INGEST_MILVUS_COLLECTION_NAME: "document_chunks_minilm" # Asegúrate que coincide con tu intención
   INGEST_MILVUS_GRPC_TIMEOUT: "10"
 

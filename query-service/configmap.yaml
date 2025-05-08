@@ -16,7 +16,7 @@ data:
   # QUERY_POSTGRES_PASSWORD -> Proveniente de Secret
 
   # Milvus (Sin cambios)
-  QUERY_MILVUS_URI: "http://milvus-standalone.nyro-develop.svc.cluster.local:19530"
+  QUERY_MILVUS_URI: "http://milvus.nyro-develop.svc.cluster.local:19530"
   QUERY_MILVUS_COLLECTION_NAME: "document_chunks_minilm"
   QUERY_MILVUS_EMBEDDING_FIELD: "embedding"
   QUERY_MILVUS_CONTENT_FIELD: "content"
