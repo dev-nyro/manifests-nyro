@@ -33,7 +33,7 @@ data:
 
   # Gemini LLM Settings
   # --- LLM_CORRECTION: Set correct model name ---
-  QUERY_GEMINI_MODEL_NAME: "gemini-2.5-flash-latest"
+  QUERY_GEMINI_MODEL_NAME: "gemini-2.5-flash-preview-04-17"
   # QUERY_GEMINI_API_KEY -> Proveniente de Secret
 
   # RAG Pipeline Control & Parameters
