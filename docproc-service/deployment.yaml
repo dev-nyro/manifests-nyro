@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: docproc-service
-          image: atenex/docproc-service:latest # Reemplazar con la URL/tag de tu imagen
+          image: ghcr.io/dev-nyro/docproc-service:develop-6be259e
           imagePullPolicy: Always
           ports:
             - name: http
