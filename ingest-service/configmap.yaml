@@ -20,21 +20,24 @@ data:
   # INGEST_POSTGRES_PASSWORD -> Secret
 
   # Milvus
-  INGEST_MILVUS_URI: "http://milvus.nyro-develop.svc.cluster.local:19530"
-  INGEST_MILVUS_COLLECTION_NAME: "document_chunks_minilm" # Asegúrate que coincide con tu intención
+  INGEST_MILVUS_URI: "http://milvus-standalone.nyro-develop.svc.cluster.local:19530" # Nombre de servicio actualizado
+  INGEST_MILVUS_COLLECTION_NAME: "document_chunks_minilm"
   INGEST_MILVUS_GRPC_TIMEOUT: "10"
 
   # Google Cloud Storage
   INGEST_GCS_BUCKET_NAME: "atenex"
 
-  # Embedding Settings (using SentenceTransformers)
-  INGEST_EMBEDDING_MODEL_ID: "sentence-transformers/all-MiniLM-L6-v2"
-  INGEST_EMBEDDING_DIMENSION: "384" # Dimension for MiniLM-L6-v2
-  # INGEST_USE_GPU: "false" # Kept for reference but default SentenceTransformer usage is CPU
+  # Embedding Settings
+  # INGEST_EMBEDDING_MODEL_ID: "sentence-transformers/all-MiniLM-L6-v2" # Eliminado
+  INGEST_EMBEDDING_DIMENSION: "384" # Mantenido para el esquema de Milvus
 
   # Tokenizer Settings
-  INGEST_TIKTOKEN_ENCODING_NAME: "cl100k_base" # Default encoding
+  INGEST_TIKTOKEN_ENCODING_NAME: "cl100k_base"
 
-  # Splitter Settings
-  INGEST_SPLITTER_CHUNK_SIZE: "1000"
-  INGEST_SPLITTER_CHUNK_OVERLAP: "250"
+  # URLs for dependent services
+  INGEST_EMBEDDING_SERVICE_URL: "http://embedding-service.nyro-develop.svc.cluster.local:8003/api/v1/embed"
+  INGEST_DOCPROC_SERVICE_URL: "http://docproc-service.nyro-develop.svc.cluster.local:8005/api/v1/process"
+
+  # Splitter Settings - Eliminados
+  # INGEST_SPLITTER_CHUNK_SIZE: "1000"
+  # INGEST_SPLITTER_CHUNK_OVERLAP: "250"

@@ -16,7 +16,7 @@ data:
   # QUERY_POSTGRES_PASSWORD -> Proveniente de Secret
 
   # Milvus (Sin cambios)
-  QUERY_MILVUS_URI: "http://milvus.nyro-develop.svc.cluster.local:19530"
+  QUERY_MILVUS_URI: "http://milvus.nyro-develop.svc.cluster.local:19530" # Asumiendo que Milvus está en el mismo namespace
   QUERY_MILVUS_COLLECTION_NAME: "document_chunks_minilm"
   QUERY_MILVUS_EMBEDDING_FIELD: "embedding"
   QUERY_MILVUS_CONTENT_FIELD: "content"
@@ -24,29 +24,31 @@ data:
   QUERY_MILVUS_DOCUMENT_ID_FIELD: "document_id"
   QUERY_MILVUS_FILENAME_FIELD: "file_name"
   QUERY_MILVUS_GRPC_TIMEOUT: "15"
-  # QUERY_MILVUS_METADATA_FIELDS: (...) # Se usarán los defaults de config.py si no se especifica
+  # QUERY_MILVUS_METADATA_FIELDS: (...)
 
-  # Embedding Settings (FastEmbed - Sin cambios)
-  QUERY_FASTEMBED_MODEL_NAME: "sentence-transformers/all-MiniLM-L6-v2"
-  QUERY_EMBEDDING_DIMENSION: "384"
-  QUERY_FASTEMBED_QUERY_PREFIX: "query: "
+  # Embedding Settings
+  QUERY_EMBEDDING_DIMENSION: "384" # Dimensión esperada/configurada, para Milvus y validación
+  # --- NUEVA CONFIGURACIÓN ---
+  QUERY_EMBEDDING_SERVICE_URL: "http://embedding-service.nyro-develop.svc.cluster.local:8003" # URL del servicio de embedding
+  # --- REMOVED FastEmbed local settings ---
+  # QUERY_FASTEMBED_MODEL_NAME: "sentence-transformers/all-MiniLM-L6-v2"
+  # QUERY_FASTEMBED_QUERY_PREFIX: "query: "
+
 
   # Gemini LLM Settings
-  # --- LLM_CORRECTION: Set correct model name ---
-  QUERY_GEMINI_MODEL_NAME: "gemini-2.5-flash-preview-04-17"
+  QUERY_GEMINI_MODEL_NAME: "gemini-1.5-flash-latest" # Corregido, no "gemini-2.5..."
   # QUERY_GEMINI_API_KEY -> Proveniente de Secret
 
   # RAG Pipeline Control & Parameters
-  # --- LLM_CORRECTION: Increase K and set new context limit ---
-  QUERY_RETRIEVER_TOP_K: "100" # K inicial para cada retriever (aumentado)
-  QUERY_MAX_CONTEXT_CHUNKS: "75" # Máximo de chunks para el prompt del LLM (aumentado)
-  QUERY_MAX_PROMPT_TOKENS: "500000" # Límite de tokens (opcional, informativo)
+  QUERY_RETRIEVER_TOP_K: "100"
+  QUERY_MAX_CONTEXT_CHUNKS: "75"
+  QUERY_MAX_PROMPT_TOKENS: "500000"
 
-  QUERY_BM25_ENABLED: "true" # Habilitar BM25 por defecto
-  QUERY_RERANKER_ENABLED: "true" # Habilitar Reranker por defecto
-  QUERY_RERANKER_MODEL_NAME: "BAAI/bge-reranker-base" # Modelo reranker (sin cambios)
-  QUERY_DIVERSITY_FILTER_ENABLED: "false" # MANTENER DESHABILITADO para maximizar contexto fácilmente
-  # QUERY_DIVERSITY_LAMBDA: "0.5" # Irrelevante si DIVERSITY_FILTER_ENABLED es false
+  QUERY_BM25_ENABLED: "true"
+  QUERY_RERANKER_ENABLED: "true"
+  QUERY_RERANKER_MODEL_NAME: "BAAI/bge-reranker-base"
+  QUERY_DIVERSITY_FILTER_ENABLED: "true" # Habilitar MMR por defecto
+  QUERY_DIVERSITY_LAMBDA: "0.5" # Lambda para MMR
   # QUERY_HYBRID_FUSION_ALPHA: "0.5" # (Actualmente no usado por RRF)
 
   # Prompt Templates (Sin cambios aquí, usan los defaults de config.py)
