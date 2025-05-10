@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: embedding-service
-          image: ghcr.io/dev-nyro/embedding-service:latest # Placeholder, CI/CD will update this
+          image: ghcr.io/dev-nyro/embedding-service:develop-cfbf195
           imagePullPolicy: Always
           ports:
             - name: http
