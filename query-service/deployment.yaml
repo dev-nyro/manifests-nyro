@@ -44,7 +44,7 @@ spec:
               memory: "3Gi"
             limits:
               cpu: "3000m" # 3 vCPU
-              memory: "6Gi"
+              memory: "8Gi"
 
           # --- Sondas eliminadas según solicitud ---
           # livenessProbe: ...
