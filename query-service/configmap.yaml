@@ -1,4 +1,4 @@
-# Ejemplo: query-service/kubernetes/configmap.yaml (o como se llame tu archivo)
+# query-service/configmap.yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:

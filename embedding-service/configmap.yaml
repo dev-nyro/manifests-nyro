@@ -1,0 +1,25 @@
+# embedding-service/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: embedding-service-config
+  namespace: nyro-develop
+data:
+  EMBEDDING_LOG_LEVEL: "INFO"
+  EMBEDDING_PORT: "8003" # Gunicorn/Uvicorn will listen on this port inside the container
+
+  # FastEmbed Model Configuration
+  EMBEDDING_FASTEMBED_MODEL_NAME: "sentence-transformers/all-MiniLM-L6-v2"
+  EMBEDDING_EMBEDDING_DIMENSION: "384" # Must match the model
+
+  # Optional: Cache directory for FastEmbed models inside the container
+  # If set, consider if this path needs a persistent volume or if ephemeral is fine.
+  # For small models, ephemeral might be okay as download is quick.
+  # EMBEDDING_FASTEMBED_CACHE_DIR: "/app/.cache/fastembed"
+  EMBEDDING_FASTEMBED_CACHE_DIR: "/dev/shm/fastembed_cache" # Use in-memory /dev/shm for faster startup if models are small
+
+  # Optional: Number of threads for FastEmbed tokenization
+  # EMBEDDING_FASTEMBED_THREADS: "2" # Example: limit to 2 threads
+
+  # Optional: Max sequence length for the model
+  EMBEDDING_FASTEMBED_MAX_LENGTH: "512"

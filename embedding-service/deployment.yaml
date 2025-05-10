@@ -1,0 +1,57 @@
+# embedding-service/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: embedding-service-deployment
+  namespace: nyro-develop
+  labels:
+    app: embedding-service
+spec:
+  replicas: 1 # Start with 1, scale as needed
+  selector:
+    matchLabels:
+      app: embedding-service
+  template:
+    metadata:
+      labels:
+        app: embedding-service
+    spec:
+      containers:
+        - name: embedding-service
+          image: ghcr.io/dev-nyro/embedding-service:latest # Placeholder, CI/CD will update this
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8003 # Must match EMBEDDING_PORT and Gunicorn bind port
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: embedding-service-config
+          # No secrets needed for this service currently
+          #   - secretRef:
+          #       name: embedding-service-secrets # If secrets were needed
+          resources:
+            requests:
+              cpu: "500m"   # Request 0.5 vCPU
+              memory: "1Gi"  # Request 1 GB RAM (FastEmbed models can be memory intensive)
+            limits:
+              cpu: "1500m"  # Limit to 1.5 vCPU
+              memory: "3Gi" # Limit to 3 GB RAM
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http # Refers to the containerPort named 'http' (8003)
+            initialDelaySeconds: 20 # Time for model to load
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 45 # Longer delay for liveness
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+      # imagePullSecrets: # Uncomment if using a private Docker registry
+      # - name: your-registry-secret
