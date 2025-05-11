@@ -7,7 +7,7 @@ metadata:
   labels:
     app: docproc-service
 spec:
-  replicas: 1 # Ajustar según la carga esperada
+  replicas: 1
   selector:
     matchLabels:
       app: docproc-service
