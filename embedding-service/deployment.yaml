@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: embedding-service
-          image: ghcr.io/dev-nyro/embedding-service:develop-ddcb096
+          image: ghcr.io/dev-nyro/embedding-service:develop-6d532f0
           imagePullPolicy: Always
           ports:
             - name: http
