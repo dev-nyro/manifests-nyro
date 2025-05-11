@@ -16,6 +16,11 @@ spec:
       labels:
         app: embedding-service
     spec:
+      volumes:
+        - name: dshm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 256Mi # Ajusta este tamaño según sea necesario, ej. 256MB
       containers:
         - name: embedding-service
           image: ghcr.io/dev-nyro/embedding-service:develop-d318cb1
@@ -27,9 +32,12 @@ spec:
           envFrom:
             - configMapRef:
                 name: embedding-service-config
-          # No secrets needed for this service currently
+          # No secrets needed for this service actualmente
           #   - secretRef:
           #       name: embedding-service-secrets # If secrets were needed
+          volumeMounts:
+            - name: dshm
+              mountPath: /shm
           resources:
             requests:
               cpu: "500m"   # Request 0.5 vCPU
