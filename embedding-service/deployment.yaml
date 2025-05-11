@@ -7,7 +7,7 @@ metadata:
   labels:
     app: embedding-service
 spec:
-  replicas: 0
+  replicas: 1
   selector:
     matchLabels:
       app: embedding-service
@@ -23,7 +23,7 @@ spec:
             sizeLimit: 256Mi # Ajusta este tamaño según sea necesario, ej. 256MB
       containers:
         - name: embedding-service
-          image: ghcr.io/dev-nyro/embedding-service:develop-d318cb1
+          image: ghcr.io/dev-nyro/embedding-service:develop-1c92a51
           imagePullPolicy: Always
           ports:
             - name: http
