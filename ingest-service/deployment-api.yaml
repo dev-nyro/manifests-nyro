@@ -26,14 +26,10 @@ spec:
               containerPort: 8000 # Puerto que expone Gunicorn/Uvicorn
               protocol: TCP
           command: ["gunicorn"]
-          args: [
-              "-k", "uvicorn.workers.UvicornWorker",
-              "-w", "4",                             # Número de workers (ajustar según CPU/memoria disponible)
-              "-b", "0.0.0.0:8000",
-              "-t", "120",                           # Timeout extendido
-              "--log-level", "info",                 # Nivel de log para Gunicorn/Uvicorn
-              "app.main:app"
-            ]
+          args: ["-k", "uvicorn.workers.UvicornWorker", "-w", "4", # Número de workers (ajustar según CPU/memoria disponible)
+            "-b", "0.0.0.0:8000", "-t", "120", # Timeout extendido
+            "--log-level", "info", # Nivel de log para Gunicorn/Uvicorn
+            "app.main:app"]
           envFrom:
             - configMapRef:
                 name: ingest-service-config
@@ -54,7 +50,7 @@ spec:
             limits:
               cpu: "1500m"
               memory: "2Gi"
-          # Probes eliminados según solicitud previa
+              # Probes eliminados según solicitud previa
       # --- GCS Authentication: Not directly configured here ---
       # Assumes Workload Identity is configured for the service account running this pod, OR
       # GOOGLE_APPLICATION_CREDENTIALS env var is set via secrets/volumeMounts if using key files.

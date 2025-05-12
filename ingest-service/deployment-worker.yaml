@@ -24,17 +24,7 @@ spec:
           image: ghcr.io/dev-nyro/ingest-service:develop-23382da
           imagePullPolicy: Always
           command: ["celery"]
-          args:
-            [
-              "-A",
-              "app.tasks.celery_app",
-              "worker",
-              "--loglevel=INFO",
-              "-P",
-              "prefork",
-              "-c",
-              "4",
-            ]
+          args: ["-A", "app.tasks.celery_app", "worker", "--loglevel=INFO", "-P", "prefork", "-c", "4"]
           envFrom:
             - configMapRef:
                 name: ingest-service-config
@@ -44,13 +34,13 @@ spec:
             # --- Establecer variable de entorno para la clave ---
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: "/etc/gcp-secrets/key.json" # Ruta donde se montará la clave
-            # -------------------------------------------------
+              # -------------------------------------------------
           volumeMounts:
             # --- Montar el secreto en el contenedor ---
             - name: gcp-key-volume
               mountPath: "/etc/gcp-secrets" # Directorio donde montar
               readOnly: true
-            # ------------------------------------------
+              # ------------------------------------------
           resources:
             requests:
               cpu: "1000m"
@@ -64,8 +54,8 @@ spec:
           secret:
             secretName: gcs-worker-sa-key # Nombre del secreto creado
             items:
-            - key: key.json # Nombre del archivo DENTRO del secreto
-              path: key.json # Nombre que tendrá el archivo en mountPath
-        # ---------------------------------------
+              - key: key.json # Nombre del archivo DENTRO del secreto
+                path: key.json # Nombre que tendrá el archivo en mountPath
+                # ---------------------------------------
       # imagePullSecrets:
       # - name: your-registry-secret
