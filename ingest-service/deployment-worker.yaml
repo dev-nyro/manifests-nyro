@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: ingest-worker
-          image: ghcr.io/dev-nyro/ingest-service:develop-23382da # Placeholder, CI/CD to update
+          image: ghcr.io/dev-nyro/ingest-service:develop-7791722
           imagePullPolicy: Always
           command: ["celery"]
           args:

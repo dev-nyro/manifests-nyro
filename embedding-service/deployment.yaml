@@ -22,7 +22,7 @@ spec:
             sizeLimit: 256Mi # Límite de tamaño para el tmpfs
       containers:
         - name: embedding-service
-          image: ghcr.io/dev-nyro/embedding-service:develop-1c92a51 # Usa el tag más reciente después de reconstruir con correcciones de código si las hubo
+          image: ghcr.io/dev-nyro/embedding-service:develop-b2e97c8
           imagePullPolicy: Always
           ports:
             - name: http

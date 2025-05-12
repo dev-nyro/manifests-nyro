@@ -7,7 +7,7 @@ metadata:
   labels:
     app: reranker-service
 spec:
-  replicas: 0
+  replicas: 1
   selector:
     matchLabels:
       app: reranker-service
@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: reranker-service
-          image: ghcr.io/dev-nyro/reranker-service:latest # Placeholder: replace with actual image path and tag
+          image: ghcr.io/dev-nyro/reranker-service:develop-67d3507 # Placeholder: replace with actual image path and tag
           imagePullPolicy: Always
           ports:
             - name: http
@@ -40,12 +40,12 @@ spec:
               value: "8004" # Explicitly set port, aligns with containerPort
             - name: RERANKER_WORKERS
               value: "2" # Explicitly set Gunicorn workers
-            # Hugging Face token might be needed for private models or to avoid rate limits
-            # - name: HUGGING_FACE_HUB_TOKEN
-            #   valueFrom:
-            #     secretKeyRef:
-            #       name: huggingface-secrets # Example, create this secret if needed
-            #       key: hub_token
+              # Hugging Face token might be needed for private models or to avoid rate limits
+              # - name: HUGGING_FACE_HUB_TOKEN
+              #   valueFrom:
+              #     secretKeyRef:
+              #       name: huggingface-secrets # Example, create this secret if needed
+              #       key: hub_token
           resources:
             requests:
               cpu: "1000m" # 1 vCPU
