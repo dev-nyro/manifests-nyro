@@ -1,4 +1,3 @@
-# ingest-service/deployment-worker.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -16,12 +15,9 @@ spec:
       labels:
         app: ingest-worker
     spec:
-      # No se necesita serviceAccountName si usas claves
       containers:
         - name: ingest-worker
-          # Ensure this image includes CPU ONNX runtime and correct dependencies
-          # ACTUALIZA ESTA ETIQUETA con la imagen construida DESPUÉS de aplicar los cambios de código
-          image: ghcr.io/dev-nyro/ingest-service:develop-23382da
+          image: ghcr.io/dev-nyro/ingest-service:develop-23382da # Placeholder, CI/CD to update
           imagePullPolicy: Always
           command: ["celery"]
           args:
@@ -33,39 +29,36 @@ spec:
               "-P",
               "prefork",
               "-c",
-              "4",
+              "4", # Number of worker processes
             ]
           envFrom:
             - configMapRef:
                 name: ingest-service-config
             - secretRef:
-                name: ingest-service-secrets
+                name: ingest-service-secrets # Reference to the secret
           env:
-            # --- Establecer variable de entorno para la clave ---
             - name: GOOGLE_APPLICATION_CREDENTIALS
-              value: "/etc/gcp-secrets/key.json" # Ruta donde se montará la clave
-            # -------------------------------------------------
+              value: "/etc/gcp-secrets/key.json"
+            - name: INGEST_ZILLIZ_API_KEY # MODIFIED: Added Zilliz API Key from Secret
+              valueFrom:
+                secretKeyRef:
+                  name: ingest-service-secrets # Name of the k8s Secret
+                  key: ZILLIZ_API_KEY       # Key within the Secret
           volumeMounts:
-            # --- Montar el secreto en el contenedor ---
             - name: gcp-key-volume
-              mountPath: "/etc/gcp-secrets" # Directorio donde montar
+              mountPath: "/etc/gcp-secrets"
               readOnly: true
-            # ------------------------------------------
           resources:
             requests:
-              cpu: "1000m"
+              cpu: "1000m" # 1 vCPU
               memory: "3Gi"
             limits:
-              cpu: "4000m"
+              cpu: "4000m" # 4 vCPU
               memory: "8Gi"
       volumes:
-        # --- Definir el volumen desde el secreto ---
         - name: gcp-key-volume
           secret:
-            secretName: gcs-worker-sa-key # Nombre del secreto creado
+            secretName: gcs-worker-sa-key
             items:
-            - key: key.json # Nombre del archivo DENTRO del secreto
-              path: key.json # Nombre que tendrá el archivo en mountPath
-        # ---------------------------------------
-      # imagePullSecrets:
-      # - name: your-registry-secret
+            - key: key.json
+              path: key.json

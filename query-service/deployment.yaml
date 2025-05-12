@@ -1,13 +1,12 @@
-# query-service/deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: query-service-deployment
-  namespace: nyro-develop # Asegurar namespace correcto
+  namespace: nyro-develop
   labels:
     app: query-service
 spec:
-  replicas: 1 # Empezar con 1, escalar según necesidad
+  replicas: 1
   selector:
     matchLabels:
       app: query-service
@@ -17,40 +16,35 @@ spec:
         app: query-service
     spec:
       containers:
-        - name: query-service # Nombre del contenedor
-          # La imagen será actualizada por el pipeline CI/CD (este es un placeholder)
-          image: ghcr.io/dev-nyro/query-service:develop-23382da
-          imagePullPolicy: Always # O IfNotPresent si prefieres usar caché local en dev
+        - name: query-service
+          image: ghcr.io/dev-nyro/query-service:develop-23382da # Placeholder, CI/CD to update
+          imagePullPolicy: Always
           ports:
             - name: http
-              containerPort: 8001 # Puerto interno definido en Dockerfile/Config
+              containerPort: 8001
               protocol: TCP
-          # Comando Gunicorn ajustado
           command: ["gunicorn", "-k", "uvicorn.workers.UvicornWorker"]
           args: [
-              "-w", "2", # Número de workers (ajustar según CPU/Memoria)
-              "-b", "0.0.0.0:8001", # Vincular al puerto interno
-              "-t", "120", # Worker timeout
-              # "--log-level", "$(QUERY_LOG_LEVEL)", # Heredar nivel de log (opcional)
+              "-w", "2",
+              "-b", "0.0.0.0:8001",
+              "-t", "120",
               "app.main:app"
             ]
           envFrom:
             - configMapRef:
                 name: query-service-config
             - secretRef:
-                name: query-service-secrets # Asegurar que el Secret existe
-          resources: # Aumentado para mejorar velocidad de arranque y performance
+                name: query-service-secrets
+          env:
+            - name: QUERY_ZILLIZ_API_KEY # MODIFIED: Added Zilliz API Key from Secret
+              valueFrom:
+                secretKeyRef:
+                  name: query-service-secrets # Name of the k8s Secret
+                  key: ZILLIZ_API_KEY       # Key within the Secret
+          resources:
             requests:
-              cpu: "1500m" # 1.5 vCPU
+              cpu: "1500m"
               memory: "3Gi"
             limits:
-              cpu: "3000m" # 3 vCPU
+              cpu: "3000m"
               memory: "8Gi"
-
-          # --- Sondas eliminadas según solicitud ---
-          # livenessProbe: ...
-          # readinessProbe: ...
-
-      # Descomentar si se usa registro privado
-      # imagePullSecrets:
-      # - name: your-registry-secret
