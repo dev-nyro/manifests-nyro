@@ -17,20 +17,11 @@ spec:
     spec:
       containers:
         - name: ingest-worker
-          image: ghcr.io/dev-nyro/ingest-service:develop-7791722
+          image: ghcr.io/dev-nyro/ingest-service:develop-360c1bd
           imagePullPolicy: Always
           command: ["celery"]
-          args:
-            [
-              "-A",
-              "app.tasks.celery_app",
-              "worker",
-              "--loglevel=INFO",
-              "-P",
-              "prefork",
-              "-c",
-              "4", # Number of worker processes
-            ]
+          args: ["-A", "app.tasks.celery_app", "worker", "--loglevel=INFO", "-P", "prefork", "-c", "4", # Number of worker processes
+          ]
           envFrom:
             - configMapRef:
                 name: ingest-service-config
@@ -43,7 +34,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: ingest-service-secrets # Name of the k8s Secret
-                  key: ZILLIZ_API_KEY       # Key within the Secret
+                  key: ZILLIZ_API_KEY # Key within the Secret
           volumeMounts:
             - name: gcp-key-volume
               mountPath: "/etc/gcp-secrets"
@@ -60,5 +51,5 @@ spec:
           secret:
             secretName: gcs-worker-sa-key
             items:
-            - key: key.json
-              path: key.json
+              - key: key.json
+                path: key.json
