@@ -27,7 +27,7 @@ data:
 
   # Embedding Settings
   QUERY_EMBEDDING_DIMENSION: "384"
-  QUERY_EMBEDDING_SERVICE_URL: "http://embedding-service.nyro-develop.svc.cluster.local:8003/api/v1/embed" # Corrected path if client expects full path
+  QUERY_EMBEDDING_SERVICE_URL: "http://embedding-service.nyro-develop.svc.cluster.local:80/api/v1/embed" # Corrected path if client expects full path
 
 
   # Gemini LLM Settings

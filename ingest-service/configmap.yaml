@@ -33,5 +33,5 @@ data:
   INGEST_TIKTOKEN_ENCODING_NAME: "cl100k_base"
 
   # URLs for dependent services
-  INGEST_EMBEDDING_SERVICE_URL: "http://embedding-service.nyro-develop.svc.cluster.local:8003/api/v1/embed"
-  INGEST_DOCPROC_SERVICE_URL: "http://docproc-service.nyro-develop.svc.cluster.local:8005/api/v1/process"
+  INGEST_EMBEDDING_SERVICE_URL: "http://embedding-service.nyro-develop.svc.cluster.local:80/api/v1/embed"
+  INGEST_DOCPROC_SERVICE_URL: "http://docproc-service.nyro-develop.svc.cluster.local:80/api/v1/process"
