@@ -22,7 +22,11 @@ spec:
         app.kubernetes.io/name: sparse-search-service
         app.kubernetes.io/version: "1.0.0"
     spec:
-      # serviceAccountName: sparse-search-runtime-sa # SA para el runtime, con permisos de lectura en GCS
+      # serviceAccountName: sparse-search-runtime-sa # Alternativa si usas Workload Identity
+      volumes: # LLM: ADDED - Definir el volumen desde el Secret
+        - name: gcs-key-volume
+          secret:
+            secretName: sparse-search-gcs-key # Nombre del Secret creado en K8s
       containers:
       - name: sparse-search-service-container 
         image: your-container-registry/sparse-search-service:v1.0.0 # Reemplaza con tu imagen
@@ -44,18 +48,18 @@ spec:
             secretKeyRef:
               name: sparse-search-service-secrets 
               key: SPARSE_POSTGRES_PASSWORD 
-        # Para GCS: Asumiendo Workload Identity o un SA montado para el runtime
-        # Si usas clave JSON montada para el runtime (menos ideal que Workload Identity):
-        # - name: GOOGLE_APPLICATION_CREDENTIALS
-        #   value: "/etc/gcp-runtime-sa-keys/key.json"
-        # volumeMounts:
-        # - name: gcp-runtime-sa-key-volume
-        #   mountPath: "/etc/gcp-runtime-sa-keys"
-        #   readOnly: true
+        # LLM: ADDED - Configurar GOOGLE_APPLICATION_CREDENTIALS
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: "/etc/gcp-keys/key.json" # Ruta donde se montará la clave dentro del pod
+        
+        volumeMounts: # LLM: ADDED - Montar el volumen en el contenedor
+          - name: gcs-key-volume
+            mountPath: "/etc/gcp-keys" # Directorio donde se montará el contenido del Secret
+            readOnly: true
         
         resources:
           requests:
-            memory: "1Gi" # Aumentado para el caché LRU y objetos BM25
+            memory: "1Gi" 
             cpu: "500m"    
           limits:
             memory: "4Gi" 
@@ -78,7 +82,3 @@ spec:
           periodSeconds: 30
           timeoutSeconds: 5
           failureThreshold: 3
-      # volumes: # Si montas clave JSON para el runtime
-      # - name: gcp-runtime-sa-key-volume
-      #   secret:
-      #     secretName: sparse-search-gcs-sa-key # O un secreto específico para el runtime
