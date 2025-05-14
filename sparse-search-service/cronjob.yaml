@@ -1,0 +1,63 @@
+# sparse-search-service/cronjob.yaml
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: sparse-search-index-builder
+  namespace: nyro-develop
+  labels:
+    app: sparse-search-service
+    component: index-builder
+    app.kubernetes.io/name: sparse-search-index-builder
+    app.kubernetes.io/part-of: atenex-platform
+spec:
+  schedule: "0 */6 * * *" 
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 3600 
+      backoffLimit: 2 
+      template:
+        metadata:
+          labels:
+            app: sparse-search-service
+            component: index-builder-pod
+            app.kubernetes.io/name: sparse-search-index-builder-pod
+        spec:
+          serviceAccountName: sparse-search-builder-sa # SA con permisos a GCS (escritura) y PG (lectura)
+          containers:
+          - name: index-builder-container
+            image: your-container-registry/sparse-search-service:v1.0.0 # Usa la misma imagen que el servicio
+            imagePullPolicy: Always 
+            command: ["python", "-m", "app.jobs.index_builder_cronjob"]
+            args:
+            - "--company-id"
+            - "ALL" 
+            envFrom:
+            - configMapRef:
+                name: sparse-search-service-config 
+            - secretRef:
+                name: sparse-search-service-secrets # Para SPARSE_POSTGRES_PASSWORD
+            env:
+            - name: SPARSE_POSTGRES_PASSWORD # Asegurar que la variable está disponible para el script del job
+              valueFrom:
+                secretKeyRef:
+                  name: sparse-search-service-secrets 
+                  key: SPARSE_POSTGRES_PASSWORD
+            # Configuración para GCS, si no usas Workload Identity para el SA 'sparse-search-builder-sa'
+            # - name: GOOGLE_APPLICATION_CREDENTIALS
+            #   value: "/etc/gcp-builder-sa-keys/key.json"
+            # volumeMounts:
+            # - name: gcp-builder-sa-key-volume
+            #   mountPath: "/etc/gcp-builder-sa-keys"
+            #   readOnly: true
+            resources:
+              requests:
+                memory: "1Gi" # Puede necesitar más memoria para construir índices grandes
+                cpu: "500m"
+              limits:
+                memory: "4Gi" 
+                cpu: "2" # Más CPU puede acelerar la indexación
+          restartPolicy: OnFailure 
+          # volumes: # Si montas la clave JSON para el builder SA
+          # - name: gcp-builder-sa-key-volume
+          #   secret:
+          #     secretName: sparse-search-gcs-sa-key # El secreto con la clave del SA del builder
