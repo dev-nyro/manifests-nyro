@@ -25,7 +25,7 @@ spec:
       # serviceAccountName: sparse-search-runtime-sa # SA para el runtime, con permisos de lectura en GCS
       containers:
         - name: sparse-search-service-container
-          image: ghcr.io/dev-nyro/sparse-search-service:develop-b617ca1 # Reemplaza con tu imagen
+          image: ghcr.io/dev-nyro/sparse-search-service:develop-b8e67fb # Reemplaza con tu imagen
           imagePullPolicy: Always
           ports:
             - name: http
