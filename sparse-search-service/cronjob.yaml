@@ -10,11 +10,11 @@ metadata:
     app.kubernetes.io/name: sparse-search-index-builder
     app.kubernetes.io/part-of: atenex-platform
 spec:
-  schedule: "0 */6 * * *" 
+  schedule: "0 */6 * * *"
   jobTemplate:
     spec:
-      ttlSecondsAfterFinished: 3600 
-      backoffLimit: 2 
+      ttlSecondsAfterFinished: 3600
+      backoffLimit: 2
       template:
         metadata:
           labels:
@@ -28,37 +28,36 @@ spec:
               secret:
                 secretName: sparse-search-gcs-key # Nombre del Secret creado en K8s
           containers:
-          - name: index-builder-container
-            image: your-container-registry/sparse-search-service:v1.0.0 # Usa la misma imagen que el servicio
-            imagePullPolicy: Always 
-            command: ["python", "-m", "app.jobs.index_builder_cronjob"]
-            args:
-            - "--company-id"
-            - "ALL" 
-            envFrom:
-            - configMapRef:
-                name: sparse-search-service-config 
-            - secretRef:
-                name: sparse-search-service-secrets # Para SPARSE_POSTGRES_PASSWORD
-            env:
-            - name: SPARSE_POSTGRES_PASSWORD 
-              valueFrom:
-                secretKeyRef:
-                  name: sparse-search-service-secrets 
-                  key: SPARSE_POSTGRES_PASSWORD
-            # LLM: ADDED - Configurar GOOGLE_APPLICATION_CREDENTIALS
-            - name: GOOGLE_APPLICATION_CREDENTIALS
-              value: "/etc/gcp-keys/key.json" # Ruta donde se montará la clave dentro del pod
-            
-            volumeMounts: # LLM: ADDED - Montar el volumen en el contenedor
-              - name: gcs-key-volume
-                mountPath: "/etc/gcp-keys" # Directorio donde se montará el contenido del Secret
-                readOnly: true
-            resources:
-              requests:
-                memory: "1Gi" 
-                cpu: "500m"
-              limits:
-                memory: "4Gi" 
-                cpu: "2" 
-          restartPolicy: OnFailure 
+            - name: index-builder-container
+              image: ghcr.io/dev-nyro/sparse-search-service:develop-ec45ad5 # Usa la misma imagen que el servicio
+              imagePullPolicy: Always
+              command: ["python", "-m", "app.jobs.index_builder_cronjob"]
+              args:
+                - "--company-id"
+                - "ALL"
+              envFrom:
+                - configMapRef:
+                    name: sparse-search-service-config
+                - secretRef:
+                    name: sparse-search-service-secrets # Para SPARSE_POSTGRES_PASSWORD
+              env:
+                - name: SPARSE_POSTGRES_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: sparse-search-service-secrets
+                      key: SPARSE_POSTGRES_PASSWORD
+                # LLM: ADDED - Configurar GOOGLE_APPLICATION_CREDENTIALS
+                - name: GOOGLE_APPLICATION_CREDENTIALS
+                  value: "/etc/gcp-keys/key.json" # Ruta donde se montará la clave dentro del pod
+              volumeMounts: # LLM: ADDED - Montar el volumen en el contenedor
+                - name: gcs-key-volume
+                  mountPath: "/etc/gcp-keys" # Directorio donde se montará el contenido del Secret
+                  readOnly: true
+              resources:
+                requests:
+                  memory: "1Gi"
+                  cpu: "500m"
+                limits:
+                  memory: "4Gi"
+                  cpu: "2"
+          restartPolicy: OnFailure
