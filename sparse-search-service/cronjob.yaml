@@ -10,7 +10,7 @@ metadata:
     app.kubernetes.io/name: sparse-search-index-builder
     app.kubernetes.io/part-of: atenex-platform
 spec:
-  schedule: "0 */6 * * *"
+  schedule: "0 */6 * * *" # O "*/10 * * * *" para pruebas más rápidas
   jobTemplate:
     spec:
       ttlSecondsAfterFinished: 3600
@@ -22,14 +22,14 @@ spec:
             component: index-builder-pod
             app.kubernetes.io/name: sparse-search-index-builder-pod
         spec:
-          # serviceAccountName: sparse-search-builder-sa # No se necesita si se usa la clave directamente
-          volumes: # LLM: ADDED - Definir el volumen desde el Secret
+          serviceAccountName: sparse-search-builder-sa # <--- ¡ASEGÚRATE QUE ESTA LÍNEA ESTÉ PRESENTE!
+          volumes:
             - name: gcs-key-volume
               secret:
-                secretName: sparse-search-gcs-key # Nombre del Secret creado en K8s
+                secretName: sparse-search-gcs-key
           containers:
             - name: index-builder-container
-              image: ghcr.io/dev-nyro/sparse-search-service:develop-ec45ad5 # Usa la misma imagen que el servicio
+              image: ghcr.io/dev-nyro/sparse-search-service:develop-ec45ad5 # Asegúrate que CI/CD actualice esto
               imagePullPolicy: Always
               command: ["python", "-m", "app.jobs.index_builder_cronjob"]
               args:
@@ -39,19 +39,18 @@ spec:
                 - configMapRef:
                     name: sparse-search-service-config
                 - secretRef:
-                    name: sparse-search-service-secrets # Para SPARSE_POSTGRES_PASSWORD
+                    name: sparse-search-service-secrets
               env:
                 - name: SPARSE_POSTGRES_PASSWORD
                   valueFrom:
                     secretKeyRef:
                       name: sparse-search-service-secrets
                       key: SPARSE_POSTGRES_PASSWORD
-                # LLM: ADDED - Configurar GOOGLE_APPLICATION_CREDENTIALS
                 - name: GOOGLE_APPLICATION_CREDENTIALS
-                  value: "/etc/gcp-keys/key.json" # Ruta donde se montará la clave dentro del pod
-              volumeMounts: # LLM: ADDED - Montar el volumen en el contenedor
+                  value: "/etc/gcp-keys/key.json"
+              volumeMounts:
                 - name: gcs-key-volume
-                  mountPath: "/etc/gcp-keys" # Directorio donde se montará el contenido del Secret
+                  mountPath: "/etc/gcp-keys"
                   readOnly: true
               resources:
                 requests:
