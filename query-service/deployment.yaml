@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: query-service
-          image: ghcr.io/dev-nyro/query-service:develop-253323f # Placeholder, CI/CD to update
+          image: ghcr.io/dev-nyro/query-service:develop-6c0d0f3 # Placeholder, CI/CD to update
           imagePullPolicy: Always
           ports:
             - name: http
