@@ -29,7 +29,7 @@ spec:
                 secretName: sparse-search-gcs-key
           containers:
             - name: index-builder-container
-              image: ghcr.io/dev-nyro/sparse-search-service:develop-ec45ad5 # Asegúrate que CI/CD actualice esto
+              image: ghcr.io/dev-nyro/sparse-search-service:develop-f736e09 # Asegúrate que CI/CD actualice esto
               imagePullPolicy: Always
               command: ["python", "-m", "app.jobs.index_builder_cronjob"]
               args:
