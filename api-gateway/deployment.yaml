@@ -24,7 +24,7 @@ spec:
         - name: api-gateway
           # La imagen será actualizada por el pipeline CI/CD
           # Ejemplo de imagen inicial, el pipeline la reemplazará
-          image: ghcr.io/dev-nyro/api-gateway:develop-9bcb370
+          image: ghcr.io/dev-nyro/api-gateway:develop-d60bccd
           # Política de pull de imagen (Always para asegurar la última, IfNotPresent si prefieres caché)
           imagePullPolicy: Always
           ports:
@@ -54,7 +54,5 @@ spec:
               cpu: "500m" # 50% de un vCPU
               memory: "512Mi" # 512 Mebibytes
           # --- Secciones livenessProbe y readinessProbe eliminadas ---
-
-      # imagePullSecrets: # Descomentar si GHCR es privado y necesitas un secreto para autenticar
-      # - name: ghcr-secret # Nombre del secreto tipo 'kubernetes.io/dockerconfigjson'
-
+# imagePullSecrets: # Descomentar si GHCR es privado y necesitas un secreto para autenticar
+# - name: ghcr-secret # Nombre del secreto tipo 'kubernetes.io/dockerconfigjson'

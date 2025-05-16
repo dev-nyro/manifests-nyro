@@ -22,7 +22,7 @@ spec:
             sizeLimit: 256Mi # Límite de tamaño para el tmpfs
       containers:
         - name: embedding-service
-          image: ghcr.io/dev-nyro/embedding-service:develop-b2e97c8
+          image: ghcr.io/dev-nyro/embedding-service:develop-d60bccd
           imagePullPolicy: Always
           ports:
             - name: http
@@ -49,11 +49,11 @@ spec:
             periodSeconds: 10
             timeoutSeconds: 5
             failureThreshold: 3
-          # livenessProbe: # ELIMINADO según solicitud
-          #   httpGet:
-          #     path: /health
-          #     port: http
-          #   initialDelaySeconds: 60
-          #   periodSeconds: 15
-          #   timeoutSeconds: 5
-          #   failureThreshold: 3
+            # livenessProbe: # ELIMINADO según solicitud
+            #   httpGet:
+            #     path: /health
+            #     port: http
+            #   initialDelaySeconds: 60
+            #   periodSeconds: 15
+            #   timeoutSeconds: 5
+            #   failureThreshold: 3
