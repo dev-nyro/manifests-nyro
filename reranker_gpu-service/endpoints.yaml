@@ -1,13 +1,12 @@
-# reranker_gpu-service/endpoints.yaml
 apiVersion: v1
 kind: Endpoints
 metadata:
-  name: reranker-gpu
+  name: reranker-gpu-service  
   namespace: nyro-develop
 subsets:
 - addresses:
   - ip: 192.168.65.3
-    nodeName: external-reranker
   ports:
-  - name: http
-    port: 8004
+  - name: http             
+    port: 8004             
+    protocol: TCP
