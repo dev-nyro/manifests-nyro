@@ -29,7 +29,7 @@ spec:
             secretName: sparse-search-gcs-key # Nombre del Secret creado en K8s
       containers:
         - name: sparse-search-service-container
-          image: ghcr.io/dev-nyro/sparse-search-service:develop-a9b00a1 # Reemplaza con tu imagen
+          image: ghcr.io/dev-nyro/sparse-search-service:develop-df4c9b9 # Reemplaza con tu imagen
           imagePullPolicy: Always
           ports:
             - name: http
