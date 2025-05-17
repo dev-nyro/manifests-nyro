@@ -1,3 +1,4 @@
+# reranker_gpu-service/service.yaml
 apiVersion: v1
 kind: Service
 metadata:
