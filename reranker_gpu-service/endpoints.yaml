@@ -1,4 +1,4 @@
-# reranker-gpu/endpoints.yaml
+# reranker_gpu-service/endpoints.yaml
 apiVersion: v1
 kind: Endpoints
 metadata:
