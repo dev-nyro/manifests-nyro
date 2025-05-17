@@ -38,7 +38,7 @@ data:
 
   # Reranker Service (Remote)
   QUERY_RERANKER_ENABLED: "true"
-  QUERY_RERANKER_SERVICE_URL: "http://reranker-service.nyro-develop.svc.cluster.local:80"
+  QUERY_RERANKER_SERVICE_URL: "http://reranker-gpu.nyro-develop.svc.cluster.local" # "http://reranker-service.nyro-develop.svc.cluster.local:80" normal
   QUERY_RERANKER_CLIENT_TIMEOUT: "220"
 
   # Gemini LLM Settings
