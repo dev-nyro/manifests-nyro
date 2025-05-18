@@ -23,7 +23,7 @@ spec:
       #       sizeLimit: 256Mi
       containers:
         - name: embedding-service
-          image: ghcr.io/dev-nyro/embedding-service:latest # Asegúrate de actualizar este tag con tu nueva imagen
+          image: ghcr.io/dev-nyro/embedding-service:develop-5be78d9
           imagePullPolicy: Always
           ports:
             - name: http
