@@ -23,7 +23,7 @@ spec:
       #       sizeLimit: 256Mi
       containers:
         - name: embedding-service
-          image: ghcr.io/dev-nyro/embedding-service:develop-5be78d9
+          image: ghcr.io/dev-nyro/embedding-service:develop-53198b1
           imagePullPolicy: Always
           ports:
             - name: http
@@ -43,7 +43,7 @@ spec:
           #     mountPath: /dev/shm
           resources:
             requests:
-              cpu: "250m"  # Reducido, ya que es I/O bound a OpenAI
+              cpu: "250m" # Reducido, ya que es I/O bound a OpenAI
               memory: "512Mi" # Reducido, no hay modelo en memoria
             limits:
               cpu: "1000m"
@@ -56,11 +56,11 @@ spec:
             periodSeconds: 10
             timeoutSeconds: 5
             failureThreshold: 3
-          # livenessProbe: # ELIMINADO según solicitud
-          #   httpGet:
-          #     path: /health
-          #     port: http
-          #   initialDelaySeconds: 60
-          #   periodSeconds: 15
-          #   timeoutSeconds: 5
-          #   failureThreshold: 3
+            # livenessProbe: # ELIMINADO según solicitud
+            #   httpGet:
+            #     path: /health
+            #     port: http
+            #   initialDelaySeconds: 60
+            #   periodSeconds: 15
+            #   timeoutSeconds: 5
+            #   failureThreshold: 3
