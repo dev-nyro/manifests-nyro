@@ -17,7 +17,7 @@ data:
 
   # Milvus/Zilliz
   QUERY_MILVUS_URI: "https://in03-0afab716eb46d7f.serverless.gcp-us-west1.cloud.zilliz.com"
-  QUERY_MILVUS_COLLECTION_NAME: "document_chunks_minilm"
+  QUERY_MILVUS_COLLECTION_NAME: "atenex-collection-01"
   QUERY_MILVUS_EMBEDDING_FIELD: "embedding"
   QUERY_MILVUS_CONTENT_FIELD: "content"
   QUERY_MILVUS_COMPANY_ID_FIELD: "company_id"
