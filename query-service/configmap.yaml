@@ -27,7 +27,7 @@ data:
   # QUERY_MILVUS_METADATA_FIELDS: (...) # Uses default from config.py
 
   # Embedding Service (Remote)
-  QUERY_EMBEDDING_DIMENSION: "384" # Debe coincidir con el modelo del embedding-service
+  QUERY_EMBEDDING_DIMENSION: "1536" # Debe coincidir con el modelo del embedding-service
   QUERY_EMBEDDING_SERVICE_URL: "http://embedding-service.nyro-develop.svc.cluster.local:80"
   QUERY_EMBEDDING_CLIENT_TIMEOUT: "30"
 
