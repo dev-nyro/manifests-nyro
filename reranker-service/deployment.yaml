@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: reranker-service
-          image: ghcr.io/dev-nyro/reranker-service:develop-9a58400 # Placeholder: replace with actual image path and tag
+          image: ghcr.io/dev-nyro/reranker-service:develop-74d7e4d # Placeholder: replace with actual image path and tag
           imagePullPolicy: Always
           ports:
             - name: http
