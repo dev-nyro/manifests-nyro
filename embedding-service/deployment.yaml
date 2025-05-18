@@ -1,3 +1,4 @@
+# embedding-service/k8s/embedding-service-deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -15,45 +16,51 @@ spec:
       labels:
         app: embedding-service
     spec:
-      volumes:
-        - name: dshm # Nombre del volumen
-          emptyDir:
-            medium: Memory # Usar memoria para este emptyDir
-            sizeLimit: 256Mi # Límite de tamaño para el tmpfs
+      # volumes: # ELIMINADO: dshm ya no es necesario para OpenAI
+      #   - name: dshm
+      #     emptyDir:
+      #       medium: Memory
+      #       sizeLimit: 256Mi
       containers:
         - name: embedding-service
-          image: ghcr.io/dev-nyro/embedding-service:develop-d60bccd
+          image: ghcr.io/dev-nyro/embedding-service:latest # Asegúrate de actualizar este tag con tu nueva imagen
           imagePullPolicy: Always
           ports:
             - name: http
-              containerPort: 8003
+              containerPort: 8003 # Debe coincidir con EMBEDDING_PORT del ConfigMap
               protocol: TCP
           envFrom:
             - configMapRef:
                 name: embedding-service-config
-          volumeMounts:
-            - name: dshm # Referencia al volumen definido arriba
-              mountPath: /dev/shm # CORREGIDO: Montar en /dev/shm
+          env:
+            - name: EMBEDDING_OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: embedding-service-secrets
+                  key: EMBEDDING_OPENAI_API_KEY
+          # volumeMounts: # ELIMINADO: dshm ya no es necesario
+          #   - name: dshm
+          #     mountPath: /dev/shm
           resources:
             requests:
-              cpu: "500m"
-              memory: "1Gi"
+              cpu: "250m"  # Reducido, ya que es I/O bound a OpenAI
+              memory: "512Mi" # Reducido, no hay modelo en memoria
             limits:
-              cpu: "1500m"
-              memory: "3Gi"
+              cpu: "1000m"
+              memory: "1Gi"
           readinessProbe:
             httpGet:
               path: /health
               port: http
-            initialDelaySeconds: 30 # Dar tiempo suficiente para la descarga y carga del modelo
+            initialDelaySeconds: 15 # Puede ser menor sin descarga de modelo local
             periodSeconds: 10
             timeoutSeconds: 5
             failureThreshold: 3
-            # livenessProbe: # ELIMINADO según solicitud
-            #   httpGet:
-            #     path: /health
-            #     port: http
-            #   initialDelaySeconds: 60
-            #   periodSeconds: 15
-            #   timeoutSeconds: 5
-            #   failureThreshold: 3
+          # livenessProbe: # ELIMINADO según solicitud
+          #   httpGet:
+          #     path: /health
+          #     port: http
+          #   initialDelaySeconds: 60
+          #   periodSeconds: 15
+          #   timeoutSeconds: 5
+          #   failureThreshold: 3
