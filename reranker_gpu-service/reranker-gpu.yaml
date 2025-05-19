@@ -1,0 +1,22 @@
+# reranker-gpu.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: reranker-gpu
+  namespace: nyro-develop
+spec:
+  ports:
+    - name: http
+      port: 8004        # puerto que usarán los pods
+      protocol: TCP
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: reranker-gpu      # <-- mismo nombre que el Service
+  namespace: nyro-develop
+subsets:
+  - addresses:
+      - ip: 192.168.65.2  # ← IP del host Docker dentro del VM
+    ports:
+      - port: 8004
