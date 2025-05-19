@@ -17,6 +17,6 @@ metadata:
   namespace: nyro-develop
 subsets:
   - addresses:
-      - ip: host.docker.internal  # ← Cambiado a host.docker.internal para pruebas
+      - ip: 192.168.65.1  # ← Cambiado a la puerta de enlace de Docker Desktop para WSL2
     ports:
       - port: 8004
