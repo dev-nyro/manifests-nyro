@@ -20,7 +20,7 @@ data:
 
   # Milvus/Zilliz
   INGEST_MILVUS_URI: "https://in03-0afab716eb46d7f.serverless.gcp-us-west1.cloud.zilliz.com" # MODIFIED
-  INGEST_MILVUS_COLLECTION_NAME: "atenex_collection"
+  INGEST_MILVUS_COLLECTION_NAME: "atenex_e5_collection" #"atenex_collection"
   INGEST_MILVUS_GRPC_TIMEOUT: "20" # Increased timeout as per consideration for Zilliz Cloud
 
   # Google Cloud Storage
