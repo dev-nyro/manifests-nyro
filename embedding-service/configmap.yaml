@@ -6,17 +6,13 @@ metadata:
   namespace: nyro-develop
 data:
   EMBEDDING_LOG_LEVEL: "INFO"
-  EMBEDDING_PORT: "8003" # Gunicorn/Uvicorn will listen on this port inside the container
+  EMBEDDING_PORT: "8003"
+
+  EMBEDDING_ACTIVE_EMBEDDING_PROVIDER: "openai"
 
   # OpenAI Embedding Model Configuration
   EMBEDDING_OPENAI_EMBEDDING_MODEL_NAME: "text-embedding-3-small"
-  # EMBEDDING_OPENAI_EMBEDDING_DIMENSIONS_OVERRIDE: "256" # Optional: uncomment to reduce dimension
-  EMBEDDING_EMBEDDING_DIMENSION: "1536" # Must match the model's output, or OPENAI_EMBEDDING_DIMENSIONS_OVERRIDE if set.
-                                        # For "text-embedding-3-small" default is 1536.
-                                        # If overriding, change this value accordingly.
-
-  # Optional: OpenAI API Base URL (e.g., for Azure OpenAI)
-  # EMBEDDING_OPENAI_API_BASE: "https://YOUR_AZURE_OPENAI_RESOURCE.openai.azure.com/"
-
+  EMBEDDING_EMBEDDING_DIMENSION: "1536"
+  
   EMBEDDING_OPENAI_TIMEOUT_SECONDS: "30"
   EMBEDDING_OPENAI_MAX_RETRIES: "3"
