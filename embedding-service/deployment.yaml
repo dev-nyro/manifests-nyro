@@ -23,7 +23,7 @@ spec:
       #       sizeLimit: 256Mi
       containers:
         - name: embedding-service
-          image: ghcr.io/dev-nyro/embedding-service:develop-ead4265
+          image: ghcr.io/dev-nyro/embedding-service:develop-495affa
           imagePullPolicy: Always
           ports:
             - name: http
