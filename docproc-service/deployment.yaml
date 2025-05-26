@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: docproc-service
-          image: ghcr.io/dev-nyro/docproc-service:develop-c305518
+          image: ghcr.io/dev-nyro/docproc-service:develop-f6fa2b8
           imagePullPolicy: Always
           ports:
             - name: http
