@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: query-service
-          image: ghcr.io/dev-nyro/query-service:develop-e3b1da5
+          image: ghcr.io/dev-nyro/query-service:develop-31976f6
           imagePullPolicy: Always
           ports:
             - name: http
