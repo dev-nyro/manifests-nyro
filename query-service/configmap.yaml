@@ -42,7 +42,7 @@ data:
   QUERY_RERANKER_CLIENT_TIMEOUT: "30"
 
   # Gemini LLM Settings
-  QUERY_GEMINI_MODEL_NAME: "gemini-1.5-flash-latest"
+  QUERY_GEMINI_MODEL_NAME: "gemini-2.0-flash"
   # QUERY_GEMINI_API_KEY -> Proveniente de Secret
 
   # RAG Pipeline Control & Parameters
