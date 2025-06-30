@@ -21,6 +21,6 @@ data:
   SPARSE_DB_CONNECT_TIMEOUT: "30"
   SPARSE_DB_COMMAND_TIMEOUT: "60"
 
-  SPARSE_INDEX_GCS_BUCKET_NAME: "atenex-sparse-indices" # Asegúrate que este bucket exista
+  SPARSE_INDEX_GCS_BUCKET_NAME: "atenex-01" # Asegúrate que este bucket exista
   SPARSE_INDEX_CACHE_MAX_ITEMS: "50"
   SPARSE_INDEX_CACHE_TTL_SECONDS: "3600" # 1 hora
